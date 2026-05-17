@@ -2,10 +2,6 @@
 /**
  * The header for our theme
  *
- * This is the template that displays all of the <head> section and everything up until <div id="content">
- *
- * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
- *
  * @package RHINO
  */
 
@@ -26,34 +22,58 @@
 	<a class="skip-link screen-reader-text" href="#primary"><?php esc_html_e( 'Skip to content', 'rhino' ); ?></a>
 
 	<header id="masthead" class="site-header">
-		<div class="site-branding">
-			<?php
-			the_custom_logo();
-			if ( is_front_page() && is_home() ) :
-				?>
-				<h1 class="site-title"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></h1>
-				<?php
-			else :
-				?>
-				<p class="site-title"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></p>
-				<?php
-			endif;
-			$rhino_description = get_bloginfo( 'description', 'display' );
-			if ( $rhino_description || is_customize_preview() ) :
-				?>
-				<p class="site-description"><?php echo $rhino_description; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
-			<?php endif; ?>
-		</div><!-- .site-branding -->
+		<div class="site-header__container">
+			<div class="site-header__inner">
+				<div class="site-header__col site-header__col--logo">
+					<?php rhino_header_logo(); ?>
+				</div>
 
-		<nav id="site-navigation" class="main-navigation">
-			<button class="menu-toggle" aria-controls="primary-menu" aria-expanded="false"><?php esc_html_e( 'Primary Menu', 'rhino' ); ?></button>
-			<?php
-			wp_nav_menu(
-				array(
-					'theme_location' => 'menu-1',
-					'menu_id'        => 'primary-menu',
-				)
-			);
-			?>
-		</nav><!-- #site-navigation -->
-	</header><!-- #masthead -->
+				<div class="site-header__col site-header__col--nav">
+					<nav id="site-navigation" class="site-header__nav" aria-label="<?php esc_attr_e( 'Primary Menu', 'rhino' ); ?>">
+						<?php rhino_header_nav_menu(); ?>
+					</nav>
+				</div>
+
+				<div class="site-header__col site-header__col--actions">
+					<?php rhino_header_phone(); ?>
+					<?php rhino_header_button(); ?>
+				</div>
+
+				<button
+					type="button"
+					class="site-header__burger"
+					aria-controls="site-header-mobile"
+					aria-expanded="false"
+					aria-label="<?php esc_attr_e( 'Toggle menu', 'rhino' ); ?>"
+				>
+					<span class="site-header__burger-line"></span>
+					<span class="site-header__burger-line"></span>
+					<span class="site-header__burger-line"></span>
+				</button>
+			</div>
+		</div>
+	</header>
+
+	<div id="site-header-mobile" class="site-header__mobile" aria-hidden="true">
+		<div class="site-header__mobile-inner">
+			<nav class="site-header__mobile-nav" aria-label="<?php esc_attr_e( 'Mobile Menu', 'rhino' ); ?>">
+				<?php
+				rhino_header_nav_menu(
+					array(
+						'menu_id'    => 'primary-menu-mobile',
+						'menu_class' => 'site-header__menu site-header__menu--mobile',
+					)
+				);
+				?>
+			</nav>
+
+			<div class="site-header__mobile-contact">
+				<?php rhino_header_phone( false ); ?>
+				<?php rhino_header_email(); ?>
+			</div>
+
+			<div class="site-header__mobile-cta">
+				<?php rhino_header_button_mobile(); ?>
+			</div>
+		</div>
+	</div>

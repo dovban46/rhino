@@ -1,0 +1,24 @@
+// ─── Scrollbar ───────────────────────────────────────────────────────────────
+::-webkit-scrollbar {
+	width: 4px;
+	height: 4px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #e62b34;
+	border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #c42329;
+}
+
+// Firefox
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #e62b34 transparent;
+}
