@@ -1,0 +1,25 @@
+:root {
+	--font-weight-light: 300;
+	--font-weight-regular: 400;
+	--font-weight-medium: 500;
+	--font-weight-semibold: 600;
+}
+
+html {
+	font-family: $font-family-primary;
+	font-weight: var(--font-weight-regular);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+body {
+	font-family: inherit;
+	font-weight: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+	font-family: inherit;
+}

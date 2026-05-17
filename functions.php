@@ -1,0 +1,57 @@
+<?php
+/**
+ * RHINO functions and definitions
+ *
+ * @link https://developer.wordpress.org/themes/basics/theme-functions/
+ *
+ * @package RHINO
+ */
+
+if ( ! defined( '_S_VERSION' ) ) {
+	// Replace the version number of the theme on each release.
+	define( '_S_VERSION', '1.0.0' );
+}
+
+/**
+ * Sets up theme defaults and registers support for various WordPress features.
+ *
+ * Note that this function is hooked into the after_setup_theme hook, which
+ * runs before the init hook. The init hook is too late for some features, such
+ * as indicating support for post thumbnails.
+ */
+
+//start custom code
+
+//connect styles and scripts
+function rhino_enqueue_styles_and_scripts() {
+	wp_enqueue_style( 'swiper-css', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.0', 'all' );
+    wp_enqueue_style( 'rhino-main-min-css', get_template_directory_uri() . '/dist/main.min.css', array( 'swiper-css' ), null, 'all' );
+    wp_enqueue_style( 'rhino-main-css', get_template_directory_uri() . '/dist/main.css', array( 'swiper-css' ), null, 'all' );
+
+	wp_enqueue_script('swiper-js', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array('jquery'), false, true);
+    wp_enqueue_script( 'rhino-main-min-js', get_template_directory_uri() . '/dist/main.min.js', array('jquery'), null, true );
+	wp_enqueue_script('main-js', get_template_directory_uri() . '/src/js/main.js', array('jquery', 'swiper-js', 'bootstrap-js', 'pagination-js', 'threejs', 'threejs-add', 'threejs-control'), false, true);
+}
+add_action( 'wp_enqueue_scripts', 'rhino_enqueue_styles_and_scripts' );
+
+// add acf content
+require get_template_directory() . '/inc/theme-acf.php';
+if ( ! function_exists( 'mytheme_register_nav_menu' ) ) {
+
+	function mytheme_register_nav_menu() {
+		register_nav_menus(
+			array(
+				'Main-menu'        => __( 'Primary Menu', 'rhino' ),
+				'Main-footer-menu' => __( 'Footer Menu', 'rhino' ),
+			)
+		);
+	}
+	add_action( 'after_setup_theme', 'mytheme_register_nav_menu', 0 );
+}
+
+//add svg file
+function allow_svg_uploads( $mimes ) {
+    $mimes['svg'] = 'image/svg+xml';
+    return $mimes;
+}
+add_filter( 'upload_mimes', 'allow_svg_uploads' );

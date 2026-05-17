@@ -1,0 +1,10 @@
+$font-path: '../assets/fonts';
+$font-family-primary: 'Roboto Flex', sans-serif;
+
+@font-face {
+	font-family: 'Roboto Flex';
+	src: url('#{$font-path}/RobotoFlex-VariableFont.ttf') format('truetype');
+	font-weight: 300 600;
+	font-style: normal;
+	font-display: swap;
+}
