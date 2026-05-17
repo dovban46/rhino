@@ -2,30 +2,42 @@
 /**
  * The template for displaying the footer
  *
- * Contains the closing of the #content div and all content after.
- *
- * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
- *
  * @package RHINO
  */
 
-?>
+$footer_text_1 = rhino_footer_html( 'footer_text_1' );
+$footer_text_2 = rhino_footer_html( 'footer_text_2' );
 
+?>
 	<footer id="colophon" class="site-footer">
-		<div class="site-info">
-			<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'rhino' ) ); ?>">
-				<?php
-				/* translators: %s: CMS name, i.e. WordPress. */
-				printf( esc_html__( 'Proudly powered by %s', 'rhino' ), 'WordPress' );
-				?>
-			</a>
-			<span class="sep"> | </span>
-				<?php
-				/* translators: 1: Theme name, 2: Theme author. */
-				printf( esc_html__( 'Theme: %1$s by %2$s.', 'rhino' ), 'rhino', '<a href="http://underscores.me/">Underscores.me</a>' );
-				?>
-		</div><!-- .site-info -->
-	</footer><!-- #colophon -->
+		<div class="site-footer__container">
+			<div class="site-footer__top">
+				<div class="site-footer__left">
+					<?php rhino_footer_logo(); ?>
+
+					<?php if ( $footer_text_1 ) : ?>
+						<p class="site-footer__text-1"><?php echo wp_kses_post( $footer_text_1 ); ?></p>
+					<?php endif; ?>
+
+					<?php if ( $footer_text_2 ) : ?>
+						<div class="site-footer__text-2"><?php echo wp_kses_post( $footer_text_2 ); ?></div>
+					<?php endif; ?>
+				</div>
+
+				<div class="site-footer__right">
+					<?php rhino_footer_contact(); ?>
+					<?php rhino_footer_social(); ?>
+				</div>
+			</div>
+
+			<div class="site-footer__divider" aria-hidden="true"></div>
+
+			<div class="site-footer__bottom">
+				<?php rhino_footer_bottom_text(); ?>
+				<?php rhino_footer_nav_menu(); ?>
+			</div>
+		</div>
+	</footer>
 </div><!-- #page -->
 
 <?php wp_footer(); ?>

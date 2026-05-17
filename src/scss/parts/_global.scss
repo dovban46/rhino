@@ -1,3 +1,24 @@
+// ─── Layout ──────────────────────────────────────────────────────────────────
+html {
+	overflow-x: hidden;
+}
+
+// ─── Sticky footer ───────────────────────────────────────────────────────────
+#page.site {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	overflow-x: hidden;
+}
+
+body{
+	margin: 0;
+}
+
+.site-footer {
+	margin-top: auto;
+}
+
 // ─── Scrollbar ───────────────────────────────────────────────────────────────
 ::-webkit-scrollbar {
 	width: 4px;
