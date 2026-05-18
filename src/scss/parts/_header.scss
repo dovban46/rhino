@@ -170,6 +170,7 @@ $header-bar-height:           61px;
 	width: $header-button-icon-width;
 	height: $header-button-icon-height;
 	margin-left: $header-button-icon-gap;
+	transform: rotate(30deg);
 	flex-shrink: 0;
 	background-color: currentColor;
 	mask: url('../assets/images/arrow.svg') center / contain no-repeat;
@@ -214,7 +215,7 @@ body.is-menu-open .site-header__burger-line:nth-child(2) {
 }
 .site-header.is-menu-open .site-header__burger-line:nth-child(3),
 body.is-menu-open .site-header__burger-line:nth-child(3) {
-	transform: translateY(-6px) rotate(-35deg);
+	transform: translateY(-6px) rotate(-45deg);
 }
 
 
@@ -411,7 +412,7 @@ body.is-mobile-menu-open { overflow: hidden; }
 	}
 
 	.site-header__button--mobile .site-header__button-icon--rotate {
-		transform: rotate(-35deg);
+		transform: rotate(30deg);
 		width: 22px;
 		height: 22px;
 	}
