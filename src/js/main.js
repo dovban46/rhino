@@ -258,6 +258,88 @@
 		});
 	}
 
+	function initReviews() {
+		var sections = document.querySelectorAll('.reviews-section');
+
+		if (!sections.length) {
+			return;
+		}
+
+		function revealSection(section) {
+			section.classList.add('is-visible');
+
+			var counter = section.querySelector('.reviews-section__rating[data-count]');
+
+			if (counter && counter.dataset.animated !== 'true') {
+				counter.dataset.animated = 'true';
+				animateCounter(counter);
+			}
+
+			var sliderEl = section.querySelector('.reviews-section__slider');
+
+			if (!sliderEl || sliderEl.dataset.swiperInit === 'true') {
+				return;
+			}
+
+			if (typeof window.Swiper === 'undefined') {
+				return;
+			}
+
+			sliderEl.dataset.swiperInit = 'true';
+
+			new window.Swiper(sliderEl, {
+				slidesPerView: 1,
+				slidesPerGroup: 1,
+				spaceBetween: 20,
+				loop: true,
+				speed: 800,
+				watchOverflow: true,
+				navigation: {
+					nextEl: section.querySelector('.reviews-section__nav--next'),
+					prevEl: section.querySelector('.reviews-section__nav--prev'),
+				},
+				breakpoints: {
+					551: {
+						slidesPerView: 2,
+						slidesPerGroup: 1,
+						spaceBetween: 20,
+					},
+					901: {
+						slidesPerView: 3,
+						slidesPerGroup: 1,
+						spaceBetween: 20,
+					},
+				},
+			});
+		}
+
+		if (!('IntersectionObserver' in window)) {
+			sections.forEach(revealSection);
+			return;
+		}
+
+		var observer = new IntersectionObserver(
+			function (entries, obs) {
+				entries.forEach(function (entry) {
+					if (!entry.isIntersecting) {
+						return;
+					}
+
+					revealSection(entry.target);
+					obs.unobserve(entry.target);
+				});
+			},
+			{
+				threshold: 0.15,
+				rootMargin: '0px 0px -5% 0px',
+			}
+		);
+
+		sections.forEach(function (section) {
+			observer.observe(section);
+		});
+	}
+
 	function initHeroReveal() {
 		var heroes = document.querySelectorAll('.hero-section');
 
@@ -300,6 +382,7 @@
 		initStats();
 		initRunLine();
 		initWhyChoose();
+		initReviews();
 	}
 
 	if (document.readyState === 'loading') {

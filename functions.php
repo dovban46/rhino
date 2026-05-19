@@ -40,7 +40,7 @@ function rhino_enqueue_styles_and_scripts() {
 	wp_enqueue_script(
 		'rhino-main-js',
 		get_template_directory_uri() . '/dist/main.min.js',
-		array(),
+		array( 'swiper-js' ),
 		_S_VERSION,
 		true
 	);
@@ -51,6 +51,7 @@ add_action( 'wp_enqueue_scripts', 'rhino_enqueue_styles_and_scripts' );
 require get_template_directory() . '/inc/theme-acf.php';
 require get_template_directory() . '/inc/theme-header.php';
 require get_template_directory() . '/inc/theme-footer.php';
+require get_template_directory() . '/inc/theme-reviews.php';
 if ( ! function_exists( 'mytheme_register_nav_menu' ) ) {
 
 	function mytheme_register_nav_menu() {
