@@ -22,6 +22,14 @@ if ( ! defined( '_S_VERSION' ) ) {
 
 //start custom code
 
+/**
+ * Theme setup.
+ */
+function rhino_theme_setup() {
+	add_theme_support( 'title-tag' );
+}
+add_action( 'after_setup_theme', 'rhino_theme_setup' );
+
 //connect styles and scripts
 function rhino_enqueue_styles_and_scripts() {
 	wp_enqueue_style( 'swiper-css', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.0', 'all' );
