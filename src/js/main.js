@@ -376,6 +376,185 @@
 		});
 	}
 
+	function enhanceContactSubmitButtons(root) {
+		var scope = root || document;
+		var inputs = scope.querySelectorAll(
+			'.contact-section input[type="submit"].rhino-cf7-form__submit'
+		);
+
+		inputs.forEach(function (input) {
+			if (input.getAttribute('data-rhino-submit-enhanced') === '1') {
+				return;
+			}
+
+			var button = document.createElement('button');
+			var attr;
+			var i;
+
+			button.type = 'submit';
+			button.className = input.className;
+
+			for (i = 0; i < input.attributes.length; i++) {
+				attr = input.attributes[i];
+
+				if (attr.name === 'type' || attr.name === 'value') {
+					continue;
+				}
+
+				button.setAttribute(attr.name, attr.value);
+			}
+
+			button.innerHTML =
+				'<span class="rhino-cf7-form__submit-text">' +
+				(input.value || 'SEND REQUEST') +
+				'</span><span class="rhino-cf7-form__submit-icon" aria-hidden="true"></span>';
+
+			input.setAttribute('data-rhino-submit-enhanced', '1');
+			input.parentNode.replaceChild(button, input);
+		});
+	}
+
+	function initContact() {
+		var sections = document.querySelectorAll('.contact-section');
+
+		if (!sections.length) {
+			return;
+		}
+
+		var modal =
+			document.getElementById('contact-success-modal') ||
+			document.querySelector('.contact-section__modal');
+
+		function openModal() {
+			if (!modal) {
+				return;
+			}
+
+			modal.classList.add('is-open');
+			modal.setAttribute('aria-hidden', 'false');
+			document.body.classList.add('is-contact-modal-open');
+		}
+
+		function closeModal() {
+			if (!modal) {
+				return;
+			}
+
+			modal.classList.remove('is-open');
+			modal.setAttribute('aria-hidden', 'true');
+			document.body.classList.remove('is-contact-modal-open');
+		}
+
+		if (modal) {
+			if (modal.parentNode !== document.body) {
+				document.body.appendChild(modal);
+			}
+
+			if (modal.getAttribute('data-rhino-modal-init') !== '1') {
+				modal.setAttribute('data-rhino-modal-init', '1');
+
+				modal.querySelectorAll('[data-contact-modal-close]').forEach(function (trigger) {
+					trigger.addEventListener('click', closeModal);
+				});
+
+				document.addEventListener('keydown', function (event) {
+					if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+						closeModal();
+					}
+				});
+			}
+		}
+
+		function bindContactForms(root) {
+			if (!root) {
+				return;
+			}
+
+			var forms = [];
+
+			if (root.nodeName === 'FORM' && root.classList.contains('wpcf7-form')) {
+				forms = [root];
+			} else if (root.querySelectorAll) {
+				forms = Array.prototype.slice.call(root.querySelectorAll('.wpcf7-form'));
+			}
+
+			forms.forEach(function (form) {
+				if (!form.closest('.contact-section') && !form.closest('[data-rhino-contact-form]')) {
+					return;
+				}
+
+				if (form.getAttribute('data-rhino-form-bound') === '1') {
+					return;
+				}
+
+				form.setAttribute('data-rhino-form-bound', '1');
+
+				form.addEventListener('wpcf7submit', function (event) {
+					if (event.detail && event.detail.status === 'mail_sent') {
+						openModal();
+					}
+				});
+
+				form.addEventListener('wpcf7mailsent', openModal);
+
+				if (window.jQuery) {
+					window.jQuery(form).on('wpcf7mailsent', openModal);
+				}
+			});
+		}
+
+		sections.forEach(function (section) {
+			enhanceContactSubmitButtons(section);
+			bindContactForms(section);
+		});
+
+		function onCf7DomReady(event) {
+			var target = event.target || (event.detail && event.detail.target);
+
+			if (!target) {
+				return;
+			}
+
+			enhanceContactSubmitButtons(target);
+			bindContactForms(target);
+		}
+
+		document.addEventListener('wpcf7domready', onCf7DomReady);
+
+		if (window.jQuery) {
+			window.jQuery(document).on('wpcf7domready', onCf7DomReady);
+		}
+
+		function revealSection(section) {
+			section.classList.add('is-visible');
+		}
+
+		if ('IntersectionObserver' in window) {
+			var revealObserver = new IntersectionObserver(
+				function (entries, obs) {
+					entries.forEach(function (entry) {
+						if (!entry.isIntersecting) {
+							return;
+						}
+
+						revealSection(entry.target);
+						obs.unobserve(entry.target);
+					});
+				},
+				{
+					threshold: 0.12,
+					rootMargin: '0px 0px -5% 0px',
+				}
+			);
+
+			sections.forEach(function (section) {
+				revealObserver.observe(section);
+			});
+		} else {
+			sections.forEach(revealSection);
+		}
+	}
+
 	function initProcess() {
 		var sections = document.querySelectorAll('.process-section');
 
@@ -420,6 +599,7 @@
 		initWhyChoose();
 		initReviews();
 		initProcess();
+		initContact();
 	}
 
 	if (document.readyState === 'loading') {
