@@ -89,6 +89,19 @@ add_filter( 'upload_mimes', 'allow_svg_uploads' );
  * @return array
  */
 function rhino_body_class( $classes ) {
+	if ( function_exists( 'rhino_is_service_category_archive' ) && rhino_is_service_category_archive() ) {
+		$term = get_queried_object();
+
+		$classes[] = 'rhino-category-page';
+		$classes[] = 'rhino-tax-service-category';
+
+		if ( $term instanceof WP_Term && ! empty( $term->slug ) ) {
+			$classes[] = 'rhino-service-category-' . sanitize_html_class( $term->slug );
+		}
+
+		return $classes;
+	}
+
 	if ( ! is_singular() ) {
 		return $classes;
 	}

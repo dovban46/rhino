@@ -45,6 +45,28 @@ function rhino_service_category_taxonomy() {
 }
 
 /**
+ * Whether the current request is a service category taxonomy archive.
+ *
+ * @return bool
+ */
+function rhino_is_service_category_archive() {
+	if ( is_tax( array( 'service-category', 'service_category' ) ) ) {
+		return true;
+	}
+
+	$taxonomy = rhino_service_category_taxonomy();
+
+	if ( $taxonomy && is_tax( $taxonomy ) ) {
+		return true;
+	}
+
+	$term = get_queried_object();
+
+	return $term instanceof WP_Term
+		&& in_array( $term->taxonomy, array( 'service-category', 'service_category' ), true );
+}
+
+/**
  * Get service category terms for Our Services block.
  *
  * @return WP_Term[]
@@ -131,4 +153,154 @@ function rhino_get_service_category_description( $term ) {
 	}
 
 	return is_string( $description ) ? trim( $description ) : '';
+}
+
+/**
+ * Get Services page URL.
+ *
+ * @return string
+ */
+function rhino_get_services_page_url() {
+	$page = get_page_by_path( 'services' );
+
+	if ( $page instanceof WP_Post ) {
+		return get_permalink( $page );
+	}
+
+	return home_url( '/services/' );
+}
+
+/**
+ * Front page ID used for shared homepage ACF blocks.
+ *
+ * @return int
+ */
+function rhino_get_homepage_id() {
+	return (int) get_option( 'page_on_front' );
+}
+
+/**
+ * Get one flexible layout row from homepage blocks.
+ *
+ * @param string $layout Layout name (e.g. hero, contact).
+ * @return array|null Full flexible row data.
+ */
+function rhino_get_homepage_flexible_layout( $layout ) {
+	if ( ! function_exists( 'get_field' ) || ! $layout ) {
+		return null;
+	}
+
+	$page_id = rhino_get_homepage_id();
+
+	if ( ! $page_id ) {
+		return null;
+	}
+
+	$blocks = get_field( 'blocks', $page_id );
+
+	if ( ! empty( $blocks ) && is_array( $blocks ) ) {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+
+			if ( $layout === ( $block['acf_fc_layout'] ?? '' ) ) {
+				return $block;
+			}
+		}
+	}
+
+	if ( function_exists( 'have_rows' ) && have_rows( 'blocks', $page_id ) ) {
+		while ( have_rows( 'blocks', $page_id ) ) {
+			the_row();
+
+			if ( $layout === get_row_layout() ) {
+				$row = get_row( true );
+
+				if ( ! empty( $row ) && is_array( $row ) ) {
+					return $row;
+				}
+			}
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Get homepage hero section data from ACF blocks.
+ *
+ * @return array|null
+ */
+function rhino_get_homepage_hero_section() {
+	$block = rhino_get_homepage_flexible_layout( 'hero' );
+
+	if ( empty( $block['hero_section'] ) || ! is_array( $block['hero_section'] ) ) {
+		return null;
+	}
+
+	return $block['hero_section'];
+}
+
+/**
+ * Get homepage contact section data from ACF blocks.
+ *
+ * @return array|null
+ */
+function rhino_get_homepage_contact_section() {
+	$block = rhino_get_homepage_flexible_layout( 'contact' );
+
+	if ( empty( $block['contact_section'] ) || ! is_array( $block['contact_section'] ) ) {
+		return null;
+	}
+
+	return $block['contact_section'];
+}
+
+/**
+ * Render homepage contact block (used on service category archives).
+ */
+function rhino_render_homepage_contact_section() {
+	$block = rhino_get_homepage_flexible_layout( 'contact' );
+
+	if ( empty( $block['contact_section'] ) || ! is_array( $block['contact_section'] ) ) {
+		return;
+	}
+
+	global $rhino_prefetched_contact;
+
+	$rhino_prefetched_contact = array(
+		'section' => $block['contact_section'],
+		'options' => $block['options'] ?? null,
+	);
+
+	get_template_part( 'template-parts/acf-blocks/contact' );
+
+	unset( $rhino_prefetched_contact );
+}
+
+/**
+ * Get CTA button from homepage hero section.
+ *
+ * @return array|null
+ */
+function rhino_get_homepage_hero_button() {
+	$hero = rhino_get_homepage_hero_section();
+
+	if ( empty( $hero ) || ! function_exists( 'rhino_acf_link' ) ) {
+		return null;
+	}
+
+	return rhino_acf_link( $hero['hero_button'] ?? null );
+}
+
+/**
+ * Get background watermark text from homepage hero (optional).
+ *
+ * @return string
+ */
+function rhino_get_homepage_hero_bg_text() {
+	$hero = rhino_get_homepage_hero_section();
+
+	return $hero ? trim( (string) ( $hero['hero_text_bg'] ?? '' ) ) : '';
 }

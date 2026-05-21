@@ -60,6 +60,29 @@ add_action( 'acf/init', 'my_acf_op_init' );
 function the_acf_loop() {
 	get_template_part( 'template-parts/loop/acf-blocks', 'loop' );
 }
+
+/**
+ * Output ACF flexible content for the current or given taxonomy term.
+ *
+ * @param WP_Term|null $term Term object. Defaults to queried term on taxonomy archives.
+ */
+function rhino_the_acf_term_loop( $term = null ) {
+	if ( ! $term instanceof WP_Term ) {
+		$term = get_queried_object();
+	}
+
+	if ( ! $term instanceof WP_Term ) {
+		return;
+	}
+
+	set_query_var( 'rhino_acf_term', $term );
+	get_template_part( 'template-parts/loop/acf-blocks', 'term-loop' );
+
+	if ( function_exists( 'rhino_render_homepage_contact_section' ) ) {
+		rhino_render_homepage_contact_section();
+	}
+}
+
 function the_acf_archive_loop() {
 	get_template_part( 'template-parts/loop/acf-blocks-archive', 'loop' );
 }
@@ -71,8 +94,10 @@ function the_acf_archive_loop() {
 =====================
 */
 
-function get_acf_block_options() {
-	$options = get_sub_field( 'options' );
+function get_acf_block_options( $options = null ) {
+	if ( null === $options ) {
+		$options = get_sub_field( 'options' );
+	}
 
 	$params = array(
 		'id'    => '',

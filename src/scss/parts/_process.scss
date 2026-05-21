@@ -243,3 +243,16 @@ $process-accent: #e62b34;
 		grid-column: auto;
 	}
 }
+
+body.rhino-category-page{
+	.process-section__title{
+		line-height: 91px;
+	}
+
+	@media (max-width: $process-breakpoint){
+		.process-section__title{
+			line-height: 40px;
+			margin: 0;
+		}
+	}
+}

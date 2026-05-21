@@ -1311,6 +1311,154 @@ body.is-mobile-menu-open {
   }
 }
 
+.rhino-category-page .hero-section,
+.rhino-tax-service-category .hero-section {
+  padding: 160px 20px 136px;
+}
+.rhino-category-page .hero-section__bg-text,
+.rhino-tax-service-category .hero-section__bg-text {
+  top: 110px;
+}
+.rhino-category-page .hero-section__content,
+.rhino-tax-service-category .hero-section__content {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-column-gap: 24px;
+     -moz-column-gap: 24px;
+          column-gap: 24px;
+  row-gap: 0;
+}
+.rhino-category-page .hero-section__back,
+.rhino-tax-service-category .hero-section__back {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 24px;
+  color: rgba(255, 255, 255, 0.7215686275);
+  font-size: 16px;
+  font-weight: var(--font-weight-regular);
+  line-height: 1.2;
+  text-decoration: none;
+  text-transform: uppercase;
+  -webkit-transition: color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rhino-category-page .hero-section__back:hover,
+.rhino-category-page .hero-section__back:focus-visible,
+.rhino-tax-service-category .hero-section__back:hover,
+.rhino-tax-service-category .hero-section__back:focus-visible {
+  color: #ffffff;
+}
+.rhino-category-page .hero-section__back-icon,
+.rhino-tax-service-category .hero-section__back-icon {
+  display: inline-block;
+  font-size: 18px;
+  line-height: 1;
+}
+.rhino-category-page .hero-section__title-wrap,
+.rhino-tax-service-category .hero-section__title-wrap {
+  -webkit-box-flex: 1;
+      -ms-flex: 1 1 auto;
+          flex: 1 1 auto;
+  min-width: 0;
+  max-width: 665px;
+  margin-bottom: 0;
+  padding: 0.14em 0 1em;
+  overflow: hidden;
+}
+.rhino-category-page .hero-section__title,
+.rhino-tax-service-category .hero-section__title {
+  max-width: 665px;
+  font-weight: var(--font-weight-medium);
+  line-height: 115px;
+}
+.rhino-category-page .hero-section__bottom-text,
+.rhino-tax-service-category .hero-section__bottom-text {
+  -webkit-box-flex: 1;
+      -ms-flex: 1 0 100%;
+          flex: 1 0 100%;
+  width: 100%;
+  max-width: 665px;
+  margin-top: 24px;
+}
+.rhino-category-page .hero-section__button,
+.rhino-tax-service-category .hero-section__button {
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+  margin-top: 0;
+}
+.rhino-category-page .hero-section__button-icon,
+.rhino-tax-service-category .hero-section__button-icon {
+  -webkit-transform: none;
+          transform: none;
+}
+.rhino-category-page .hero-section__button:hover .hero-section__button-icon,
+.rhino-category-page .hero-section__button:focus-visible .hero-section__button-icon,
+.rhino-tax-service-category .hero-section__button:hover .hero-section__button-icon,
+.rhino-tax-service-category .hero-section__button:focus-visible .hero-section__button-icon {
+  -webkit-transform: none;
+          transform: none;
+}
+@media (max-width: 1024px) {
+  .rhino-category-page .hero-section,
+  .rhino-tax-service-category .hero-section {
+    padding: 270px 20px 190px;
+    background-position: center center;
+    background-size: cover;
+  }
+  .rhino-category-page .hero-section__content,
+  .rhino-tax-service-category .hero-section__content {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-align: stretch;
+        -ms-flex-align: stretch;
+            align-items: stretch;
+    gap: 0;
+  }
+  .rhino-category-page .hero-section__title-wrap,
+  .rhino-tax-service-category .hero-section__title-wrap {
+    max-width: 500px;
+    padding: 0 0 0.5em;
+  }
+  .rhino-category-page .hero-section__title,
+  .rhino-tax-service-category .hero-section__title {
+    max-width: 500px;
+    font-size: 52px;
+    line-height: 0.94;
+  }
+  .rhino-category-page .hero-section__bottom-text,
+  .rhino-tax-service-category .hero-section__bottom-text {
+    max-width: 500px;
+    margin-top: 24px;
+  }
+  .rhino-category-page .hero-section__bg-text,
+  .rhino-tax-service-category .hero-section__bg-text {
+    top: 110px;
+  }
+  .rhino-category-page .hero-section__button,
+  .rhino-tax-service-category .hero-section__button {
+    width: 100%;
+    margin-top: 88px;
+  }
+}
+
 .rhino-page-about .hero-section {
   background-size: cover;
   background-position: center;
@@ -2618,6 +2766,16 @@ body.is-mobile-menu-open {
     grid-column: auto;
   }
 }
+body.rhino-category-page .process-section__title {
+  line-height: 91px;
+}
+@media (max-width: 1024px) {
+  body.rhino-category-page .process-section__title {
+    line-height: 40px;
+    margin: 0;
+  }
+}
+
 .contact-section {
   padding: 110px 20px;
   opacity: 0;

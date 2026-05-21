@@ -5,7 +5,15 @@
  * @package RHINO
  */
 
-$section = get_sub_field( 'contact_section' );
+global $rhino_prefetched_contact;
+
+if ( ! empty( $rhino_prefetched_contact['section'] ) && is_array( $rhino_prefetched_contact['section'] ) ) {
+	$section = $rhino_prefetched_contact['section'];
+	$block   = get_acf_block_options( $rhino_prefetched_contact['options'] ?? null );
+} else {
+	$section = get_sub_field( 'contact_section' );
+	$block   = get_acf_block_options();
+}
 
 if ( empty( $section ) || ! is_array( $section ) ) {
 	return;
@@ -21,7 +29,6 @@ if ( ! $top_text && ! $title && ! $text && empty( $items ) && ! $form ) {
 	return;
 }
 
-$block      = get_acf_block_options();
 $section_id = $block['id'] ? ' id="' . esc_attr( $block['id'] ) . '"' : '';
 $classes    = 'contact-section' . ( $block['class'] ? ' ' . esc_attr( trim( $block['class'] ) ) : '' );
 
