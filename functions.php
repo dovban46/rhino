@@ -61,6 +61,7 @@ require get_template_directory() . '/inc/theme-header.php';
 require get_template_directory() . '/inc/theme-footer.php';
 require get_template_directory() . '/inc/theme-reviews.php';
 require get_template_directory() . '/inc/theme-contact.php';
+require get_template_directory() . '/inc/theme-services.php';
 if ( ! function_exists( 'mytheme_register_nav_menu' ) ) {
 
 	function mytheme_register_nav_menu() {
