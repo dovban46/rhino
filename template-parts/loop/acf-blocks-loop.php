@@ -6,4 +6,3 @@ if ( have_rows( 'blocks' ) ) {
 		get_template_part( 'template-parts/acf-blocks/' . get_row_layout() );
 	}
 }
-?>

@@ -190,3 +190,48 @@ $why-choose-icon-bg: #ffeef0;
 		height: 29px;
 	}
 }
+
+body.rhino-page-about {
+	.why-choose-section {
+		padding: 87px 20px;
+
+		@media (max-width: $why-choose-breakpoint) {
+			padding: 40px 20px;
+		}
+	}
+
+	.why-choose-section__title {
+		@media (max-width: $why-choose-breakpoint) {
+			margin-bottom: 40px;
+		}
+	}
+
+	.why-choose-section__grid {
+		grid-template-columns: 1fr;
+		gap: 20px;
+
+		@media (min-width: 560px) {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 21px;
+		}
+
+		@media (min-width: 1100px) {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+	}
+
+	.why-choose-section__item {
+		min-width: 0;
+		min-height: auto;
+		height: auto;
+		padding: 24px;
+	}
+
+	.why-choose-section__item-title {
+		line-height: 1.2;
+	}
+
+	.why-choose-section__item-text {
+		overflow-wrap: anywhere;
+	}
+}
