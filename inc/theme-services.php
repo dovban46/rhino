@@ -100,6 +100,34 @@ function rhino_get_service_category_terms() {
 }
 
 /**
+ * Get all service category terms for the category list block.
+ *
+ * @return WP_Term[]
+ */
+function rhino_get_category_list_terms() {
+	$taxonomy = rhino_service_category_taxonomy();
+
+	if ( ! taxonomy_exists( $taxonomy ) ) {
+		return array();
+	}
+
+	$terms = get_terms(
+		array(
+			'taxonomy'   => $taxonomy,
+			'hide_empty' => false,
+			'orderby'    => 'name',
+			'order'      => 'ASC',
+		)
+	);
+
+	if ( is_wp_error( $terms ) || empty( $terms ) ) {
+		return array();
+	}
+
+	return $terms;
+}
+
+/**
  * Get ACF field value for a service category term.
  *
  * @param WP_Term|int $term  Term object or term ID.

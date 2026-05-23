@@ -1,0 +1,319 @@
+$category-list-breakpoint: 1024px;
+$category-list-accent:     #e62b34;
+$category-list-border:     #00000094;
+$category-list-muted:      #00000094;
+$category-list-text:       #333333;
+
+// ─── Section ──────────────────────────────────────────────────────────────────
+
+.category-list-section {
+	padding: 0 20px 100px;
+}
+
+.category-list-section__inner {
+	max-width: 1200px;
+	margin:    0 auto;
+}
+
+// ─── List ─────────────────────────────────────────────────────────────────────
+
+.category-list-section__list {
+	margin:     0;
+	padding:    0;
+	list-style: none;
+}
+
+// ─── Item ─────────────────────────────────────────────────────────────────────
+
+.category-list-section__item {
+	padding:       71px 0;
+	border-bottom: 1px solid $category-list-border;
+	background:    #ffffff;
+
+	&:last-child {
+		border-bottom: 0;
+	}
+}
+
+// Sticky stack — works on all breakpoints. JS adds --stack-enabled and sets top/z-index.
+.category-list-section--stack-enabled .category-list-section__item {
+	position:      sticky;
+	padding-top:   70px;
+	border-bottom: 0;
+	border-top:    1px solid $category-list-border;
+	// top and z-index set by JS on every scroll frame — no CSS transition needed
+}
+
+.category-list-section--stack-enabled .category-list-section__item:first-child {
+	border-top: 0;
+}
+
+.category-list-section--stack-enabled .category-list-section__item:last-child {
+	border-bottom: 1px solid $category-list-border;
+}
+
+// ─── Card layout (desktop grid) ───────────────────────────────────────────────
+
+.category-list-section__card {
+	display:               grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	grid-template-areas:   'index head aside';
+	align-items:           center;
+	column-gap:            0;
+}
+
+.category-list-section__card-top {
+	display: contents;
+}
+
+// ─── Index number ─────────────────────────────────────────────────────────────
+
+.category-list-section__index {
+	grid-area:   index;
+	align-self:  center;
+	font-size:   16px;
+	font-weight: var(--font-weight-light);
+	line-height: 1;
+	color:       $category-list-accent;
+	white-space: nowrap;
+}
+
+// Read-more button (hidden on desktop, shown on mobile)
+.category-list-section__read-more {
+	display: none;
+}
+
+// ─── Head ─────────────────────────────────────────────────────────────────────
+
+.category-list-section__head {
+	grid-area:   head;
+	align-self:  center;
+	min-width:   0;
+	margin-left: 42px;
+}
+
+.category-list-section__title {
+	margin:         0;
+	font-size:      50px;
+	font-weight:    var(--font-weight-medium);
+	line-height:    42px;
+	color:          #000000;
+	text-transform: capitalize;
+}
+
+.category-list-section__title-link {
+	color:           inherit;
+	text-decoration: none;
+	transition:      color 0.25s ease;
+
+	&:hover,
+	&:focus-visible {
+		color: $category-list-accent;
+	}
+}
+
+.category-list-section__subtitles {
+	margin:         25px 0 0;
+	font-size:      15px;
+	font-weight:    var(--font-weight-regular);
+	line-height:    1.2;
+	color:          $category-list-muted;
+	text-transform: uppercase;
+}
+
+// ─── Aside ────────────────────────────────────────────────────────────────────
+
+.category-list-section__aside {
+	grid-area:       aside;
+	display:         flex;
+	align-items:     center;
+	justify-content: flex-end;
+	gap:             42px;
+	margin-left:     33px;
+	align-self:      center;
+}
+
+.category-list-section__description {
+	flex:        0 1 401px;
+	max-width:   401px;
+	font-size:   16px;
+	font-weight: var(--font-weight-light);
+	line-height: 1.31;
+	color:       $category-list-text;
+
+	p {
+		margin: 0;
+	}
+
+	p + p {
+		margin-top: 0.75em;
+	}
+}
+
+// ─── Media ────────────────────────────────────────────────────────────────────
+
+.category-list-section__media {
+	position:        relative;
+	display:         block;
+	flex-shrink:     0;
+	width:           200px;
+	height:          153px;
+	overflow:        hidden;
+	text-decoration: none;
+
+	&::after {
+		content:        '';
+		position:       absolute;
+		inset:          0;
+		background:     rgba(230, 43, 52, 0);
+		transition:     background-color 0.3s ease;
+		pointer-events: none;
+	}
+}
+
+.category-list-section__media:hover::after,
+.category-list-section__media:focus-visible::after {
+	background: rgba(230, 43, 52, 0.12);
+}
+
+.category-list-section__media:hover .category-list-section__image,
+.category-list-section__media:focus-visible .category-list-section__image {
+	transform: scale(1.05);
+}
+
+.category-list-section__image {
+	display:    block;
+	width:      100%;
+	height:     100%;
+	object-fit: cover;
+	transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+// ─── Reveal animation ─────────────────────────────────────────────────────────
+
+.category-list-section__card-reveal {
+	opacity:   0;
+	transform: translateY(36px);
+	transition:
+		opacity   0.6s cubic-bezier(0.22, 1, 0.36, 1),
+		transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.category-list-section__item.is-item-visible .category-list-section__card-reveal {
+	opacity:   1;
+	transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.category-list-section__card-reveal {
+		opacity:    1;
+		transform:  none;
+		transition: none;
+	}
+}
+
+// ─── Mobile ───────────────────────────────────────────────────────────────────
+
+@media (max-width: $category-list-breakpoint) {
+	.category-list-section {
+		padding: 0 20px 80px;
+	}
+
+	.category-list-section__item {
+		padding: 53px 0;
+	}
+
+	.category-list-section__card {
+		display:        flex;
+		flex-direction: column;
+		align-items:    stretch;
+		gap:            0;
+	}
+
+	.category-list-section__card-top {
+		display:         flex;
+		align-items:     flex-end;
+		justify-content: space-between;
+		gap:             16px;
+		margin-bottom:   45px;
+		overflow:        hidden;
+	}
+
+	.category-list-section__index {
+		align-self:     auto;
+		font-size:      40px;
+		font-weight:    var(--font-weight-semibold);
+		line-height:    0.72;
+		letter-spacing: -0.04em;
+	}
+
+	.category-list-section__read-more {
+		display:         inline-flex;
+		align-items:     center;
+		gap:             2px;
+		flex-shrink:     0;
+		margin-bottom:   0.15em;
+		font-size:       20px;
+		font-weight:     var(--font-weight-light);
+		line-height:     1.2;
+		color:           #000000;
+		text-decoration: none;
+		border-bottom:   1px solid $category-list-accent;
+		transition:      color 0.25s ease;
+
+		&:hover,
+		&:focus-visible {
+			color: $category-list-accent;
+		}
+	}
+
+	.category-list-section__read-more-icon {
+		display:          block;
+		flex-shrink:      0;
+		width:            20px;
+		height:           20px;
+		background-color: #000000;
+		mask:             url('../assets/images/arrow.svg') center / contain no-repeat;
+		-webkit-mask:     url('../assets/images/arrow.svg') center / contain no-repeat;
+		transition:       background-color 0.25s ease;
+	}
+
+	.category-list-section__read-more:hover .category-list-section__read-more-icon,
+	.category-list-section__read-more:focus-visible .category-list-section__read-more-icon {
+		background-color: $category-list-accent;
+	}
+
+	.category-list-section__head {
+		align-self:  auto;
+		margin-left: 0;
+	}
+
+	.category-list-section__title {
+		font-size:   40px;
+		line-height: 1.1;
+	}
+
+	.category-list-section__subtitles {
+		margin-top: 25px;
+	}
+
+	.category-list-section__aside {
+		flex-direction: column;
+		align-items:    stretch;
+		align-self:     auto;
+		gap:            42px;
+		margin-top:     28px;
+		margin-left:    0;
+	}
+
+	.category-list-section__description {
+		flex:      1 1 auto;
+		max-width: 360px;
+	}
+
+	.category-list-section__media {
+		width:     100%;
+		max-width: none;
+		height:    275px;
+	}
+}

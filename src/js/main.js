@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
 	'use strict';
 
 	function initHeaderMenu() {
@@ -629,6 +629,193 @@
 			});
 		} else {
 			sections.forEach(revealSection);
+		}
+	}
+
+	function initCategoryList() {
+		var sections = document.querySelectorAll('[data-category-list]');
+
+		if (!sections.length) {
+			return;
+		}
+
+		var stackMQ = window.matchMedia('(min-width: 1025px)');
+		var header  = document.querySelector('.site-header');
+
+		function getHeaderH() {
+			return header ? header.offsetHeight : 0;
+		}
+
+		function markVisible(item) {
+			if (!item.classList.contains('is-item-visible')) {
+				item.classList.add('is-item-visible');
+			}
+		}
+
+		// в”Ђв”Ђ rolling-window sticky stacking в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+		//
+		//  On each scroll frame the "active" index is recalculated.
+		//  Then every item's top is assigned based on delta = activeIdx - i:
+		//
+		//   delta  0  (active)   в†’  headerH + 2*peek
+		//   delta  1  (1-back)   в†’  headerH + 1*peek
+		//   delta  2  (2-back)   в†’  headerH
+		//   delta в‰Ґ 3 (old)      в†’  в€’itemHeight  (hidden above viewport)
+		//   delta < 0 (future)   в†’  headerH + 2*peek  (not sticky yet)
+		//
+		//  Natural tops are cached once (with sticky removed) so the active
+		//  index can be found cheaply on every frame.
+
+		function setupSection(section) {
+			if (section._clCleanup) {
+				section._clCleanup();
+				delete section._clCleanup;
+			}
+
+			var items = Array.prototype.slice.call(section.querySelectorAll('[data-category-list-item]'));
+			var isMobile = !stackMQ.matches;
+				var maxPeeks  = isMobile ? 1 : 2;
+			var peek      = isMobile
+					? parseInt(section.getAttribute('data-stack-peek-mobile'), 10) || 80
+					: parseInt(section.getAttribute('data-stack-peek'), 10) || 150;
+
+				if (items.length <= 1) {
+				section.classList.remove('category-list-section--stack-enabled');
+				section.classList.remove('category-list-section--no-transition');
+				items.forEach(function (item) {
+					item.style.top    = '';
+					item.style.zIndex = '';
+				});
+				return;
+			}
+
+			section.classList.add('category-list-section--stack-enabled');
+			section.classList.add('category-list-section--no-transition');
+
+			// Temporarily remove sticky to read natural document positions
+			items.forEach(function (item) {
+				item.style.position = 'relative';
+				item.style.top      = '0px';
+			});
+			void section.offsetHeight;
+
+			var headerH = getHeaderH();
+			var N       = items.length;
+			var rafId   = null;
+
+			var naturalTops = items.map(function (item) {
+					return item.getBoundingClientRect().top + window.pageYOffset;
+				});
+				var itemHeights = items.map(function (item) {
+					return item.offsetHeight;
+				});
+				// Restore sticky
+				items.forEach(function (item) {
+					item.style.position = '';
+				});
+
+			function departure(j, scrollY) {
+				if (j >= N) { return 0; }
+				var vp     = naturalTops[j] - scrollY;
+				var arrVp  = headerH + maxPeeks * peek;
+				var trigVp = arrVp + peek;
+				return Math.max(0, Math.min(1, (trigVp - vp) / peek));
+			}
+
+			function updateTops() {
+				var scrollY = window.pageYOffset;
+
+		items.forEach(function (item, i) {
+				var stickyStart = naturalTops[i] - headerH - maxPeeks * peek;
+				var newTop;
+
+				if (scrollY < stickyStart) {
+					// Not yet in stacking zone: set top = natural viewport position so
+					// sticky fires at exactly the natural position — no visual displacement.
+					newTop = naturalTops[i] - scrollY;
+				} else {
+					var dep1 = departure(i + 1, scrollY);
+					var dep2 = maxPeeks > 1 ? departure(i + 2, scrollY) : 0;
+					newTop = Math.max(headerH, Math.min(headerH + maxPeeks * peek, headerH + (maxPeeks - dep1 - dep2) * peek));
+				}
+
+				item.style.top    = newTop + 'px';
+				item.style.zIndex = i + 1;
+			});
+			}
+
+			updateTops();
+
+			requestAnimationFrame(function () {
+				requestAnimationFrame(function () {
+					section.classList.remove('category-list-section--no-transition');
+				});
+			});
+
+			function onScroll() {
+				if (rafId) { return; }
+				rafId = requestAnimationFrame(function () {
+					rafId = null;
+					updateTops();
+				});
+			}
+
+			window.addEventListener('scroll', onScroll, { passive: true });
+
+			section._clCleanup = function () {
+				window.removeEventListener('scroll', onScroll);
+				if (rafId) {
+					cancelAnimationFrame(rafId);
+					rafId = null;
+				}
+			};
+		}
+
+		// в”Ђв”Ђ reveal animation via IntersectionObserver в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+
+		sections.forEach(function (section) {
+			var items = section.querySelectorAll('[data-category-list-item]');
+
+			if ('IntersectionObserver' in window) {
+				var obs = new IntersectionObserver(
+					function (entries, o) {
+						entries.forEach(function (e) {
+							if (e.isIntersecting) {
+								markVisible(e.target);
+								o.unobserve(e.target);
+							}
+						});
+					},
+					{ rootMargin: '0px 0px -60px 0px', threshold: 0 }
+				);
+				items.forEach(function (item) { obs.observe(item); });
+			} else {
+				items.forEach(markVisible);
+			}
+
+			setupSection(section);
+		});
+
+		// в”Ђв”Ђ recalculate on resize / breakpoint change в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+
+		var resizeTimer;
+
+		function onResize() {
+			window.clearTimeout(resizeTimer);
+			resizeTimer = window.setTimeout(function () {
+				sections.forEach(setupSection);
+			}, 200);
+		}
+
+		window.addEventListener('resize', onResize, { passive: true });
+		window.addEventListener('load', function () {
+			sections.forEach(setupSection);
+		}, { passive: true });
+
+		if (typeof stackMQ.addEventListener === 'function') {
+			stackMQ.addEventListener('change', onResize);
+		} else if (typeof stackMQ.addListener === 'function') {
+			stackMQ.addListener(onResize);
 		}
 	}
 
@@ -1275,6 +1462,7 @@
 		initProcess();
 		initContact();
 		initOurServices();
+		initCategoryList();
 		initRecentWork();
 	}
 
