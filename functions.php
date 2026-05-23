@@ -57,6 +57,7 @@ add_action( 'wp_enqueue_scripts', 'rhino_enqueue_styles_and_scripts' );
 
 // add acf content
 require get_template_directory() . '/inc/theme-acf.php';
+require get_template_directory() . '/inc/class-rhino-nav-walker.php';
 require get_template_directory() . '/inc/theme-header.php';
 require get_template_directory() . '/inc/theme-footer.php';
 require get_template_directory() . '/inc/theme-reviews.php';

@@ -85,7 +85,12 @@ $slide_count = count( $recent_work_posts );
 						$num  = sprintf( '/ %02d', $index );
 						?>
 						<div class="swiper-slide">
-							<article class="recent-work-section__card">
+							<article
+								class="recent-work-section__card recent-work-section__card--clickable"
+								data-recent-work-card
+								data-after-image="<?php echo esc_url( $image_after ); ?>"
+								data-slide-index="<?php echo esc_attr( (string) ( $index - 1 ) ); ?>"
+							>
 								<div class="recent-work-section__compare" data-recent-work-compare style="--compare-position: 50%;">
 									<div class="recent-work-section__compare-media">
 										<div class="recent-work-section__compare-labels">
@@ -171,6 +176,43 @@ $slide_count = count( $recent_work_posts );
 					<span class="recent-work-section__button-icon" aria-hidden="true"></span>
 				</a>
 			<?php endif; ?>
+		</div>
+	</div>
+
+	<div class="recent-work-lightbox" data-recent-work-lightbox aria-hidden="true">
+		<div class="recent-work-lightbox__backdrop" data-recent-work-lightbox-close tabindex="-1"></div>
+
+		<div
+			class="recent-work-lightbox__dialog"
+			role="dialog"
+			aria-modal="true"
+			aria-label="<?php esc_attr_e( 'Recent work gallery', 'rhino' ); ?>"
+		>
+			<div class="recent-work-lightbox__row">
+				<button
+					type="button"
+					class="recent-work-lightbox__nav recent-work-lightbox__nav--prev"
+					data-recent-work-lightbox-prev
+					aria-label="<?php esc_attr_e( 'Previous project', 'rhino' ); ?>"
+				>
+					<span class="recent-work-lightbox__nav-icon" aria-hidden="true"></span>
+				</button>
+
+				<div class="recent-work-lightbox__viewport" data-recent-work-lightbox-viewport>
+					<figure class="recent-work-lightbox__figure">
+						<img class="recent-work-lightbox__image" src="" alt="" decoding="async" />
+					</figure>
+				</div>
+
+				<button
+					type="button"
+					class="recent-work-lightbox__nav recent-work-lightbox__nav--next"
+					data-recent-work-lightbox-next
+					aria-label="<?php esc_attr_e( 'Next project', 'rhino' ); ?>"
+				>
+					<span class="recent-work-lightbox__nav-icon" aria-hidden="true"></span>
+				</button>
+			</div>
 		</div>
 	</div>
 </section>

@@ -226,18 +226,21 @@ function rhino_header_logo() {
  * @param array $args Optional wp_nav_menu arguments.
  */
 function rhino_header_nav_menu( $args = array() ) {
+	$defaults = array(
+		'theme_location' => 'Main-menu',
+		'menu_id'        => 'primary-menu',
+		'menu_class'     => 'site-header__menu',
+		'container'      => false,
+		'fallback_cb'    => false,
+		'depth'          => 2,
+	);
+
+	if ( class_exists( 'Rhino_Nav_Walker' ) ) {
+		$defaults['walker'] = new Rhino_Nav_Walker();
+	}
+
 	wp_nav_menu(
-		wp_parse_args(
-			$args,
-			array(
-				'theme_location' => 'Main-menu',
-				'menu_id'        => 'primary-menu',
-				'menu_class'     => 'site-header__menu',
-				'container'      => false,
-				'fallback_cb'    => false,
-				'depth'          => 1,
-			)
-		)
+		wp_parse_args( $args, $defaults )
 	);
 }
 
