@@ -1,0 +1,117 @@
+$portfolio-baner-breakpoint: 1024px;
+$portfolio-baner-border: #00000094;
+$portfolio-baner-accent: #e62b34;
+$portfolio-baner-accent-hover: #971e24;
+
+.portfolio-baner-section {
+	padding: 52px 20px;
+	border-top: 1px solid $portfolio-baner-border;
+	border-bottom: 1px solid $portfolio-baner-border;
+	opacity: 0;
+	transform: translateY(24px);
+	transition:
+		opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+		transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.portfolio-baner-section.is-visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.portfolio-baner-section__inner {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	max-width: 1200px;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.portfolio-baner-section__top-text {
+	margin: 0 0 21px;
+	font-size: 16px;
+	font-weight: var(--font-weight-regular);
+	line-height: 19px;
+	color: #000000;
+	text-transform: uppercase;
+}
+
+.portfolio-baner-section__title {
+	margin: 0 0 40px;
+	font-size: 70px;
+	font-weight: var(--font-weight-semibold);
+	line-height: 50px;
+	color: #000000;
+}
+
+.portfolio-baner-section__button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 310px;
+	min-height: 60px;
+	padding: 18px;
+	border: 0;
+	background: $portfolio-baner-accent;
+	color: #ffffff;
+	font-size: 16px;
+	font-weight: var(--font-weight-semibold);
+	line-height: 1;
+	text-decoration: none;
+	text-transform: uppercase;
+	cursor: pointer;
+	transition: background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.portfolio-baner-section__button-text {
+	display: inline-block;
+}
+
+.portfolio-baner-section__button-icon {
+	display: block;
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	margin-left: 7px;
+	background-color: currentColor;
+	mask: url('../assets/images/arrow.svg') center / contain no-repeat;
+	-webkit-mask: url('../assets/images/arrow.svg') center / contain no-repeat;
+}
+
+.portfolio-baner-section__button:hover,
+.portfolio-baner-section__button:focus-visible {
+	background: $portfolio-baner-accent-hover;
+	color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.portfolio-baner-section {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+}
+
+@media (max-width: $portfolio-baner-breakpoint) {
+	.portfolio-baner-section {
+		padding: 34px 20px;
+	}
+
+	.portfolio-baner-section__top-text {
+		margin-bottom: 27px;
+	}
+
+	.portfolio-baner-section__title {
+		margin-bottom: 40px;
+		font-size: 48px;
+		line-height: 48px;
+	}
+}
+
+@media (max-width: 499px) {
+	.portfolio-baner-section__title {
+		max-width: 300px;
+	}
+}

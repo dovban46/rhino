@@ -1362,6 +1362,42 @@
 		});
 	}
 
+	function initPortfolioBaner() {
+		var sections = document.querySelectorAll('[data-portfolio-baner]');
+
+		if (!sections.length) {
+			return;
+		}
+
+		if (!('IntersectionObserver' in window)) {
+			sections.forEach(function (section) {
+				section.classList.add('is-visible');
+			});
+			return;
+		}
+
+		var observer = new IntersectionObserver(
+			function (entries, obs) {
+				entries.forEach(function (entry) {
+					if (!entry.isIntersecting) {
+						return;
+					}
+
+					entry.target.classList.add('is-visible');
+					obs.unobserve(entry.target);
+				});
+			},
+			{
+				threshold: 0.15,
+				rootMargin: '0px 0px -5% 0px',
+			}
+		);
+
+		sections.forEach(function (section) {
+			observer.observe(section);
+		});
+	}
+
 	function initRecentWork() {
 		var sections = document.querySelectorAll('[data-recent-work]');
 
@@ -1542,6 +1578,7 @@
 		initOurServices();
 		initCategoryList();
 		initWhatWeDo();
+		initPortfolioBaner();
 		initRecentWork();
 	}
 
