@@ -58,8 +58,9 @@ class Rhino_Nav_Walker extends Walker_Nav_Menu {
 
 			if ( $has_children ) {
 				$output .= '<button type="button" class="site-header__menu-toggle" aria-expanded="false" aria-controls="site-header-submenu-' . (int) $item->ID . '">';
-				$output .= '<span class="site-header__menu-index" aria-hidden="true"></span>';
+				$output .= '<span class="site-header__menu-toggle-icon" aria-hidden="true"></span>';
 				$output .= '</button>';
+				$output .= '<span class="site-header__menu-index" aria-hidden="true"></span>';
 			} else {
 				$output .= '<span class="site-header__menu-index site-header__menu-index--static" aria-hidden="true"></span>';
 			}

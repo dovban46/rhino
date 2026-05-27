@@ -1,5 +1,5 @@
 $our-services-breakpoint: 1024px;
-$our-services-accent: #e62b34;
+$our-services-accent: #E62B34;
 $our-services-card-border: #ffffff36;
 
 .our-services-section {
@@ -171,12 +171,14 @@ $our-services-card-border: #ffffff36;
 
 .our-services-section__card-subtitle {
 	display: block;
-	margin-bottom: 12px;
+	margin-bottom: 20px;
 	font-size: 16px;
 	font-weight: var(--font-weight-regular);
 	line-height: 1.2;
-	color: $our-services-accent;
+	color: #FFFFFF;
 	text-transform: uppercase;
+	border-bottom: 1px solid #E62B34;
+	padding-bottom: 12px;
 }
 
 .our-services-section__card-title {

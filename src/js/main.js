@@ -417,6 +417,68 @@
 		});
 	}
 
+	function initTeam() {
+		var sections = document.querySelectorAll('[data-team]');
+
+		if (!sections.length) {
+			return;
+		}
+
+		function revealSection(section) {
+			section.classList.add('is-visible');
+
+			var sliderEl = section.querySelector('.team-section__slider');
+
+			if (!sliderEl || sliderEl.dataset.swiperInit === 'true') {
+				return;
+			}
+
+			if (typeof window.Swiper === 'undefined') {
+				return;
+			}
+
+			sliderEl.dataset.swiperInit = 'true';
+
+			new window.Swiper(sliderEl, {
+				slidesPerView: 'auto',
+				slidesPerGroup: 1,
+				spaceBetween: 50,
+				speed: 700,
+				watchOverflow: true,
+				navigation: {
+					nextEl: section.querySelector('.team-section__nav--next'),
+					prevEl: section.querySelector('.team-section__nav--prev'),
+				},
+			});
+		}
+
+		if (!('IntersectionObserver' in window)) {
+			sections.forEach(revealSection);
+			return;
+		}
+
+		var observer = new IntersectionObserver(
+			function (entries, obs) {
+				entries.forEach(function (entry) {
+					if (!entry.isIntersecting) {
+						return;
+					}
+
+					revealSection(entry.target);
+					obs.unobserve(entry.target);
+				});
+			},
+			{
+				threshold: 0.12,
+				rootMargin: '0px 0px -5% 0px',
+			}
+		);
+
+		sections.forEach(function (section) {
+			observer.observe(section);
+		});
+	}
+
 	function initHeroReveal() {
 		var heroes = document.querySelectorAll('.hero-section');
 
@@ -725,23 +787,26 @@
 			function updateTops() {
 				var scrollY = window.pageYOffset;
 
-		items.forEach(function (item, i) {
-				var stickyStart = naturalTops[i] - headerH - maxPeeks * peek;
-				var newTop;
+				items.forEach(function (item, i) {
+					var stickyStart = naturalTops[i] - headerH - maxPeeks * peek;
+					var newTop;
 
-				if (scrollY < stickyStart) {
-					// Not yet in stacking zone: set top = natural viewport position so
-					// sticky fires at exactly the natural position — no visual displacement.
-					newTop = naturalTops[i] - scrollY;
-				} else {
-					var dep1 = departure(i + 1, scrollY);
-					var dep2 = maxPeeks > 1 ? departure(i + 2, scrollY) : 0;
-					newTop = Math.max(headerH, Math.min(headerH + maxPeeks * peek, headerH + (maxPeeks - dep1 - dep2) * peek));
-				}
+					if (scrollY < stickyStart) {
+						// Not yet in stacking zone: set top = natural viewport position so
+						// sticky fires at exactly the natural position — no visual displacement.
+						newTop = naturalTops[i] - scrollY;
+					} else {
+						var dep1 = departure(i + 1, scrollY);
+						var dep2 = maxPeeks > 1 ? departure(i + 2, scrollY) : 0;
+						newTop = Math.max(
+							headerH,
+							Math.min(headerH + maxPeeks * peek, headerH + (maxPeeks - dep1 - dep2) * peek)
+						);
+					}
 
-				item.style.top    = newTop + 'px';
-				item.style.zIndex = i + 1;
-			});
+					item.style.top    = newTop + 'px';
+					item.style.zIndex = i + 1;
+				});
 			}
 
 			updateTops();
@@ -1616,6 +1681,7 @@
 		initWhatWeDo();
 		initPortfolioBaner();
 		initOurStory();
+		initTeam();
 		initRecentWork();
 	}
 
