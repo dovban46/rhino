@@ -1427,6 +1427,42 @@
 		});
 	}
 
+	function initWhereWeWork() {
+		var sections = document.querySelectorAll('[data-where-we-work]');
+
+		if (!sections.length) {
+			return;
+		}
+
+		if (!('IntersectionObserver' in window)) {
+			sections.forEach(function (section) {
+				section.classList.add('is-visible');
+			});
+			return;
+		}
+
+		var observer = new IntersectionObserver(
+			function (entries, obs) {
+				entries.forEach(function (entry) {
+					if (!entry.isIntersecting) {
+						return;
+					}
+
+					entry.target.classList.add('is-visible');
+					obs.unobserve(entry.target);
+				});
+			},
+			{
+				threshold: 0.12,
+				rootMargin: '0px 0px -5% 0px',
+			}
+		);
+
+		sections.forEach(function (section) {
+			observer.observe(section);
+		});
+	}
+
 	function initOurStory() {
 		var sections = document.querySelectorAll('[data-our-story]');
 
@@ -1682,6 +1718,7 @@
 		initPortfolioBaner();
 		initOurStory();
 		initTeam();
+		initWhereWeWork();
 		initRecentWork();
 	}
 

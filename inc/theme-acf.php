@@ -78,6 +78,10 @@ function rhino_the_acf_term_loop( $term = null ) {
 	set_query_var( 'rhino_acf_term', $term );
 	get_template_part( 'template-parts/loop/acf-blocks', 'term-loop' );
 
+	if ( function_exists( 'rhino_render_about_where_we_work_section' ) ) {
+		rhino_render_about_where_we_work_section();
+	}
+
 	if ( function_exists( 'rhino_render_homepage_contact_section' ) ) {
 		rhino_render_homepage_contact_section();
 	}

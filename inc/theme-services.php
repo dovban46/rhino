@@ -332,3 +332,84 @@ function rhino_get_homepage_hero_bg_text() {
 
 	return $hero ? trim( (string) ( $hero['hero_text_bg'] ?? '' ) ) : '';
 }
+
+/**
+ * Get About page ID.
+ *
+ * @return int
+ */
+function rhino_get_about_page_id() {
+	$page = get_page_by_path( 'about' );
+
+	return $page instanceof WP_Post ? (int) $page->ID : 0;
+}
+
+/**
+ * Get one flexible layout row from About page blocks.
+ *
+ * @param string $layout Layout name.
+ * @return array|null Full flexible row data.
+ */
+function rhino_get_about_flexible_layout( $layout ) {
+	if ( ! function_exists( 'get_field' ) || ! $layout ) {
+		return null;
+	}
+
+	$page_id = rhino_get_about_page_id();
+
+	if ( ! $page_id ) {
+		return null;
+	}
+
+	$blocks = get_field( 'blocks', $page_id );
+
+	if ( ! empty( $blocks ) && is_array( $blocks ) ) {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+
+			if ( $layout === ( $block['acf_fc_layout'] ?? '' ) ) {
+				return $block;
+			}
+		}
+	}
+
+	if ( function_exists( 'have_rows' ) && have_rows( 'blocks', $page_id ) ) {
+		while ( have_rows( 'blocks', $page_id ) ) {
+			the_row();
+
+			if ( $layout === get_row_layout() ) {
+				$row = get_row( true );
+
+				if ( ! empty( $row ) && is_array( $row ) ) {
+					return $row;
+				}
+			}
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Render About page "Where We Work" block.
+ */
+function rhino_render_about_where_we_work_section() {
+	$block = rhino_get_about_flexible_layout( 'where_we_work' );
+
+	if ( empty( $block['where_we_work_section'] ) || ! is_array( $block['where_we_work_section'] ) ) {
+		return;
+	}
+
+	global $rhino_prefetched_where_we_work;
+
+	$rhino_prefetched_where_we_work = array(
+		'section' => $block['where_we_work_section'],
+		'options' => $block['options'] ?? null,
+	);
+
+	get_template_part( 'template-parts/acf-blocks/where_we_work' );
+
+	unset( $rhino_prefetched_where_we_work );
+}

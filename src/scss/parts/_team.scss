@@ -209,6 +209,10 @@ $team-accent: #e62b34;
 }
 
 @media (max-width: $team-breakpoint) {
+	.team-section{
+		padding: 0 20px 80px;
+	}
+
 	.team-section__top {
 		gap: 11px;
 		margin-bottom: 22px;
