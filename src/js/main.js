@@ -1697,6 +1697,608 @@
 		});
 	}
 
+	var sharedReviewCityCache = '';
+
+	function getSharedReviewServiceAreaCities(config) {
+		if (config && config.serviceAreaCities && config.serviceAreaCities.length) {
+			return config.serviceAreaCities;
+		}
+
+		return ['Raleigh', 'Durham', 'Cary', 'Chapel Hill', 'Apex'];
+	}
+
+	function getSharedReviewDefaultServiceCity(config) {
+		if (config && config.defaultServiceAreaCity) {
+			return config.defaultServiceAreaCity;
+		}
+
+		return 'Raleigh';
+	}
+
+	function resolveSharedReviewCity(city, config) {
+		var normalizedCity = typeof city === 'string' ? city.trim() : '';
+		var serviceAreaCities = getSharedReviewServiceAreaCities(config);
+		var defaultCity = getSharedReviewDefaultServiceCity(config);
+		var cityLower;
+		var i;
+		var serviceCity;
+		var serviceLower;
+		var regionMap = {
+			wake: 'Raleigh',
+			'wake county': 'Raleigh',
+			durham: 'Durham',
+			orange: 'Chapel Hill',
+			'orange county': 'Chapel Hill',
+			chatham: 'Apex',
+			johnston: 'Raleigh',
+		};
+		var regionKey;
+
+		if (!normalizedCity) {
+			return defaultCity;
+		}
+
+		cityLower = normalizedCity.toLowerCase();
+
+		for (i = 0; i < serviceAreaCities.length; i++) {
+			serviceCity = serviceAreaCities[i];
+			serviceLower = serviceCity.toLowerCase();
+
+			if (cityLower === serviceLower || cityLower.indexOf(serviceLower) !== -1) {
+				return serviceCity;
+			}
+		}
+
+		for (regionKey in regionMap) {
+			if (Object.prototype.hasOwnProperty.call(regionMap, regionKey) && cityLower.indexOf(regionKey) !== -1) {
+				return regionMap[regionKey];
+			}
+		}
+
+		return normalizedCity;
+	}
+
+	function fetchJsonWithTimeout(url, ms) {
+		if (typeof AbortController !== 'undefined') {
+			var controller = new AbortController();
+			var timeoutId = setTimeout(function () {
+				controller.abort();
+			}, ms);
+
+			return fetch(url, { signal: controller.signal }).finally(function () {
+				clearTimeout(timeoutId);
+			});
+		}
+
+		return fetch(url);
+	}
+
+	function fetchSharedReviewGeo(url, normalize, ms) {
+		return fetchJsonWithTimeout(url, ms || 3500)
+			.then(function (response) {
+				if (!response.ok) {
+					return '';
+				}
+
+				return response.json();
+			})
+			.then(normalize)
+			.catch(function () {
+				return '';
+			});
+	}
+
+	function detectSharedReviewCityFromIp(config) {
+		if (sharedReviewCityCache) {
+			return Promise.resolve(sharedReviewCityCache);
+		}
+
+		try {
+			var storedCity = sessionStorage.getItem('rhino_shared_review_city');
+
+			if (storedCity) {
+				sharedReviewCityCache = storedCity;
+				return Promise.resolve(storedCity);
+			}
+		} catch (storageError) {
+			// Ignore private mode / blocked storage.
+		}
+
+		return Promise.all([
+			fetchSharedReviewGeo('https://ipwho.is/', function (data) {
+				if (!data || data.success === false) {
+					return '';
+				}
+
+				return data.city || data.region || '';
+			}),
+			fetchSharedReviewGeo('https://get.geojs.io/v1/ip/geo.json', function (data) {
+				if (!data) {
+					return '';
+				}
+
+				return data.city || data.region || '';
+			}),
+		]).then(function (results) {
+			var city = '';
+
+			for (var i = 0; i < results.length; i++) {
+				if (results[i]) {
+					city = results[i];
+					break;
+				}
+			}
+
+			city = resolveSharedReviewCity(city, config);
+
+			if (city) {
+				sharedReviewCityCache = city;
+
+				try {
+					sessionStorage.setItem('rhino_shared_review_city', city);
+				} catch (storageError) {
+					// Ignore private mode / blocked storage.
+				}
+			}
+
+			return city;
+		});
+	}
+
+	function ensureSharedReviewCity(cityInput, config) {
+		if (cityInput && cityInput.value.trim()) {
+			return Promise.resolve(resolveSharedReviewCity(cityInput.value.trim(), config));
+		}
+
+		var detection = detectSharedReviewCityFromIp(config).then(function (city) {
+			city = resolveSharedReviewCity(city, config);
+
+			if (city && cityInput) {
+				cityInput.value = city;
+			}
+
+			return city || getSharedReviewDefaultServiceCity(config);
+		});
+
+		return Promise.race([
+			detection,
+			new Promise(function (resolve) {
+				setTimeout(function () {
+					var fallbackCity = cityInput && cityInput.value ? cityInput.value.trim() : '';
+
+					resolve(resolveSharedReviewCity(fallbackCity, config));
+				}, 2500);
+			}),
+		]);
+	}
+
+	function initSharedReview() {
+		var sections = document.querySelectorAll('[data-shared-review]');
+
+		if (!sections.length) {
+			return;
+		}
+
+		var config = window.rhinoSharedReview || {};
+		var modal =
+			document.getElementById('shared-review-success-modal') ||
+			document.querySelector('[id="shared-review-success-modal"]');
+
+		function openModal() {
+			if (!modal) {
+				return;
+			}
+
+			modal.classList.add('is-open');
+			modal.setAttribute('aria-hidden', 'false');
+			document.body.classList.add('is-contact-modal-open');
+		}
+
+		function closeModal() {
+			if (!modal) {
+				return;
+			}
+
+			modal.classList.remove('is-open');
+			modal.setAttribute('aria-hidden', 'true');
+			document.body.classList.remove('is-contact-modal-open');
+		}
+
+		if (modal) {
+			if (modal.parentNode !== document.body) {
+				document.body.appendChild(modal);
+			}
+
+			if (modal.getAttribute('data-rhino-modal-init') !== '1') {
+				modal.setAttribute('data-rhino-modal-init', '1');
+
+				modal.querySelectorAll('[data-shared-review-modal-close]').forEach(function (trigger) {
+					trigger.addEventListener('click', closeModal);
+				});
+
+				document.addEventListener('keydown', function (event) {
+					if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+						closeModal();
+					}
+				});
+			}
+		}
+
+		function clearFormErrors(form) {
+			form.querySelectorAll('.wpcf7-not-valid').forEach(function (field) {
+				field.classList.remove('wpcf7-not-valid');
+			});
+
+			form.querySelectorAll('.wpcf7-not-valid-tip').forEach(function (tip) {
+				tip.remove();
+			});
+
+			var ratingWrap = form.querySelector('[data-shared-review-rating]');
+
+			if (ratingWrap) {
+				ratingWrap.classList.remove('is-invalid');
+			}
+		}
+
+		function setFieldError(field, message) {
+			if (!field) {
+				return;
+			}
+
+			field.classList.add('wpcf7-not-valid');
+
+			var wrap = field.closest('.rhino-cf7-form__field');
+
+			if (!wrap) {
+				return;
+			}
+
+			var tip = document.createElement('span');
+
+			tip.className = 'wpcf7-not-valid-tip';
+			tip.setAttribute('role', 'alert');
+			tip.textContent = message;
+			wrap.appendChild(tip);
+		}
+
+		function setRatingError(ratingWrap, message) {
+			if (!ratingWrap) {
+				return;
+			}
+
+			var ratingInput = ratingWrap.querySelector('input[name="rating"]');
+
+			if (ratingInput) {
+				ratingInput.classList.add('wpcf7-not-valid');
+			}
+
+			ratingWrap.classList.add('is-invalid');
+
+			var tip = document.createElement('span');
+
+			tip.className = 'wpcf7-not-valid-tip';
+			tip.setAttribute('role', 'alert');
+			tip.textContent = message;
+			ratingWrap.appendChild(tip);
+		}
+
+		function isValidEmail(value) {
+			if (typeof value !== 'string' || !value.trim()) {
+				return false;
+			}
+
+			if (typeof HTMLInputElement !== 'undefined') {
+				var probe = document.createElement('input');
+
+				probe.type = 'email';
+				probe.required = true;
+				probe.value = value.trim();
+
+				return probe.checkValidity();
+			}
+
+			return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+		}
+
+		function setStarState(ratingWrap, value, previewValue) {
+			var emptyUrl = ratingWrap.getAttribute('data-star-empty');
+			var filledUrl = ratingWrap.getAttribute('data-star-filled');
+			var activeValue = typeof previewValue === 'number' ? previewValue : value;
+
+			ratingWrap.querySelectorAll('[data-star-value]').forEach(function (button) {
+				var starValue = parseInt(button.getAttribute('data-star-value'), 10);
+				var icon = button.querySelector('.shared-review-section__star-icon');
+				var isFilled = starValue <= activeValue && activeValue > 0;
+				var isSelected = starValue <= value && value > 0;
+
+				button.classList.toggle('is-preview', typeof previewValue === 'number' && previewValue > 0);
+				button.classList.toggle('is-filled', isSelected);
+
+				if (!icon) {
+					return;
+				}
+
+				icon.src = isFilled ? filledUrl : emptyUrl;
+			});
+		}
+
+		function bindRating(ratingWrap) {
+			if (!ratingWrap || ratingWrap.getAttribute('data-rating-bound') === '1') {
+				return;
+			}
+
+			ratingWrap.setAttribute('data-rating-bound', '1');
+
+			var ratingInput = ratingWrap.querySelector('input[name="rating"]');
+			var currentValue = 0;
+
+			function getValue() {
+				return parseInt(ratingInput && ratingInput.value ? ratingInput.value : '0', 10) || 0;
+			}
+
+			ratingWrap.querySelectorAll('[data-star-value]').forEach(function (button) {
+				button.addEventListener('mouseenter', function () {
+					var previewValue = parseInt(button.getAttribute('data-star-value'), 10);
+					setStarState(ratingWrap, getValue(), previewValue);
+				});
+
+				button.addEventListener('focus', function () {
+					var previewValue = parseInt(button.getAttribute('data-star-value'), 10);
+					setStarState(ratingWrap, getValue(), previewValue);
+				});
+
+				button.addEventListener('click', function () {
+					currentValue = parseInt(button.getAttribute('data-star-value'), 10);
+
+					if (ratingInput) {
+						ratingInput.value = String(currentValue);
+					}
+
+					setStarState(ratingWrap, currentValue);
+				});
+			});
+
+			ratingWrap.addEventListener('mouseleave', function () {
+				setStarState(ratingWrap, getValue());
+			});
+
+			ratingWrap.addEventListener('focusout', function (event) {
+				if (!ratingWrap.contains(event.relatedTarget)) {
+					setStarState(ratingWrap, getValue());
+				}
+			});
+		}
+
+		function bindForm(form) {
+			if (!form || form.getAttribute('data-shared-review-bound') === '1') {
+				return;
+			}
+
+			form.setAttribute('data-shared-review-bound', '1');
+
+			var ratingWrap = form.querySelector('[data-shared-review-rating]');
+			var cityInput = form.querySelector('[data-shared-review-city]');
+			var nonceInput = form.querySelector('[data-shared-review-nonce]');
+			var submitButton = form.querySelector('[type="submit"]');
+			var submitText = submitButton ? submitButton.querySelector('.shared-review-section__submit-text') : null;
+			var defaultSubmitLabel = submitText ? submitText.textContent : '';
+
+			if (nonceInput && config.nonce) {
+				nonceInput.value = config.nonce;
+			}
+
+			if (cityInput) {
+				detectSharedReviewCityFromIp(config).then(function (city) {
+					if (city) {
+						cityInput.value = city;
+					}
+				});
+			}
+
+			bindRating(ratingWrap);
+
+			form.querySelectorAll('.rhino-cf7-form__control').forEach(function (field) {
+				field.addEventListener('input', function () {
+					field.classList.remove('wpcf7-not-valid');
+
+					var wrap = field.closest('.rhino-cf7-form__field');
+
+					if (wrap) {
+						var tip = wrap.querySelector('.wpcf7-not-valid-tip');
+
+						if (tip) {
+							tip.remove();
+						}
+					}
+				});
+			});
+
+			if (ratingWrap) {
+				ratingWrap.querySelectorAll('[data-star-value]').forEach(function (button) {
+					button.addEventListener('click', function () {
+						ratingWrap.classList.remove('is-invalid');
+
+						var ratingInput = ratingWrap.querySelector('input[name="rating"]');
+
+						if (ratingInput) {
+							ratingInput.classList.remove('wpcf7-not-valid');
+						}
+
+						var tip = ratingWrap.querySelector('.wpcf7-not-valid-tip');
+
+						if (tip) {
+							tip.remove();
+						}
+					});
+				});
+			}
+
+			form.addEventListener('submit', function (event) {
+				event.preventDefault();
+
+				var fullName = form.querySelector('[name="full_name"]');
+				var email = form.querySelector('[name="email"]');
+				var message = form.querySelector('[name="message"]');
+				var rating = form.querySelector('[name="rating"]');
+				var i18n = config.i18n || {};
+				var hasErrors = false;
+
+				clearFormErrors(form);
+
+				if (!fullName || !fullName.value.trim()) {
+					setFieldError(fullName, i18n.requiredField || 'This field is required.');
+					hasErrors = true;
+				}
+
+				if (!email || !email.value.trim()) {
+					setFieldError(email, i18n.requiredField || 'This field is required.');
+					hasErrors = true;
+				} else if (!isValidEmail(email.value)) {
+					setFieldError(email, i18n.invalidEmail || 'Please enter a valid email address.');
+					hasErrors = true;
+				}
+
+				if (!message || !message.value.trim()) {
+					setFieldError(message, i18n.requiredField || 'This field is required.');
+					hasErrors = true;
+				}
+
+				if (!rating || !rating.value) {
+					setRatingError(
+						ratingWrap,
+						i18n.invalidRating || 'Please select a star rating.'
+					);
+					hasErrors = true;
+				}
+
+				if (hasErrors) {
+					var firstInvalid = form.querySelector('.wpcf7-not-valid, .shared-review-section__rating.is-invalid');
+
+					if (firstInvalid && typeof firstInvalid.focus === 'function') {
+						firstInvalid.focus();
+					}
+
+					return;
+				}
+
+				if (!config.ajaxUrl || !config.action) {
+					setFieldError(message, i18n.error || 'Something went wrong. Please try again.');
+					return;
+				}
+
+				if (submitButton) {
+					submitButton.disabled = true;
+				}
+
+				if (submitText) {
+					submitText.textContent = i18n.sending || 'Sending…';
+				}
+
+				ensureSharedReviewCity(cityInput, config)
+					.then(function (city) {
+						var formData = new FormData(form);
+
+						formData.set('action', config.action);
+
+						if (config.nonce) {
+							formData.set('nonce', config.nonce);
+						}
+
+						if (city) {
+							formData.set('city', city);
+						}
+
+						return fetch(config.ajaxUrl, {
+							method: 'POST',
+							body: formData,
+							credentials: 'same-origin',
+						});
+					})
+					.then(function (response) {
+						return response.json();
+					})
+					.then(function (data) {
+						if (data && data.success) {
+							form.reset();
+							clearFormErrors(form);
+
+							if (rating) {
+								rating.value = '';
+							}
+
+							if (ratingWrap) {
+								setStarState(ratingWrap, 0);
+							}
+
+							if (nonceInput && config.nonce) {
+								nonceInput.value = config.nonce;
+							}
+
+							if (cityInput && sharedReviewCityCache) {
+								cityInput.value = sharedReviewCityCache;
+							}
+
+							openModal();
+							return;
+						}
+
+						var errorMessage =
+							(data && data.data && data.data.message) ||
+							i18n.error ||
+							'Something went wrong. Please try again.';
+
+						setFieldError(message, errorMessage);
+					})
+					.catch(function () {
+						setFieldError(message, i18n.error || 'Something went wrong. Please try again.');
+					})
+					.finally(function () {
+						if (submitButton) {
+							submitButton.disabled = false;
+						}
+
+						if (submitText) {
+							submitText.textContent = defaultSubmitLabel;
+						}
+					});
+			});
+		}
+
+		sections.forEach(function (section) {
+			var form = section.querySelector('[data-shared-review-form]');
+
+			bindForm(form);
+		});
+
+		if (!('IntersectionObserver' in window)) {
+			sections.forEach(function (section) {
+				section.classList.add('is-visible');
+			});
+			return;
+		}
+
+		var observer = new IntersectionObserver(
+			function (entries, obs) {
+				entries.forEach(function (entry) {
+					if (!entry.isIntersecting) {
+						return;
+					}
+
+					entry.target.classList.add('is-visible');
+					obs.unobserve(entry.target);
+				});
+			},
+			{
+				threshold: 0.12,
+				rootMargin: '0px 0px -5% 0px',
+			}
+		);
+
+		sections.forEach(function (section) {
+			observer.observe(section);
+		});
+	}
+
 	function initCategoryReview() {
 		var sections = document.querySelectorAll('[data-category-review]');
 
@@ -2091,6 +2693,7 @@
 		initRecentWork();
 		initRecentCategoryWork();
 		initCategoryReview();
+		initSharedReview();
 	}
 
 	if (document.readyState === 'loading') {

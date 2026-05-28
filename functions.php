@@ -9,7 +9,7 @@
 
 if ( ! defined( '_S_VERSION' ) ) {
 	// Replace the version number of the theme on each release.
-	define( '_S_VERSION', '1.0.0' );
+	define( '_S_VERSION', '1.0.3' );
 }
 
 /**
@@ -61,6 +61,7 @@ require get_template_directory() . '/inc/class-rhino-nav-walker.php';
 require get_template_directory() . '/inc/theme-header.php';
 require get_template_directory() . '/inc/theme-footer.php';
 require get_template_directory() . '/inc/theme-reviews.php';
+require get_template_directory() . '/inc/theme-shared-review.php';
 require get_template_directory() . '/inc/theme-contact.php';
 require get_template_directory() . '/inc/theme-services.php';
 require get_template_directory() . '/inc/theme-recent-work.php';
