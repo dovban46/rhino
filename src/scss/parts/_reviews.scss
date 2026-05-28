@@ -154,20 +154,25 @@ $reviews-accent: #e62b34;
 
 .reviews-section__slider-wrap {
 	overflow: hidden;
+	box-sizing: border-box;
 	width: 100%;
 	max-width: 100%;
+	// Prevent card borders from being clipped at the slide edges.
+	padding-inline: 2px;
 }
 
 .reviews-section__slider {
 	overflow: hidden;
+	box-sizing: border-box;
 	width: 100%;
 	max-width: 100%;
 }
 
 .reviews-section__slider .swiper-slide {
+	box-sizing: border-box;
 	width: 100%;
 	height: auto;
-	box-sizing: border-box;
+	padding-inline: 1px;
 }
 
 .reviews-section__slider .swiper-wrapper {

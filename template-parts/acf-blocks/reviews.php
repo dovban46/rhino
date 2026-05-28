@@ -16,10 +16,10 @@ $title             = $section['reviews_title'] ?? '';
 $button            = function_exists( 'rhino_acf_link' ) ? rhino_acf_link( $section['reviews_button'] ?? null ) : null;
 $rating            = $section['reviews_rating'] ?? null;
 $text_under_rating = trim( (string) ( $section['reviews_text_under_rating'] ?? '' ) );
-$items             = $section['reviews_items'] ?? array();
+$review_posts = function_exists( 'rhino_get_reviews_posts' ) ? rhino_get_reviews_posts() : array();
 
 $has_rating = '' !== $rating && null !== $rating;
-$has_items  = ! empty( $items ) && is_array( $items );
+$has_items  = ! empty( $review_posts );
 
 if ( ! $top_text && ! $title && empty( $button['url'] ) && ! $has_rating && ! $has_items ) {
 	return;
@@ -85,23 +85,29 @@ $rating_val = $has_rating ? (string) $rating : '';
 					<div class="reviews-section__slider swiper">
 						<div class="swiper-wrapper">
 						<?php
-						foreach ( $items as $item ) :
-							if ( ! is_array( $item ) ) {
+						foreach ( $review_posts as $review_post ) :
+							if ( ! $review_post instanceof WP_Post ) {
 								continue;
 							}
 
-							$item_rating = $item['item_rating'] ?? null;
-							$item_text   = $item['item_text'] ?? '';
-							$item_name   = trim( (string) ( $item['item_name'] ?? '' ) );
-							$item_city   = trim( (string) ( $item['item_city'] ?? '' ) );
+							$item_name = trim( get_the_title( $review_post ) );
+							$item_text = trim( (string) $review_post->post_content );
+							$item_city = trim( (string) ( function_exists( 'rhino_get_review_post_field' )
+								? rhino_get_review_post_field( $review_post->ID, 'city' )
+								: '' ) );
+							$item_rating = function_exists( 'rhino_get_review_post_field' )
+								? rhino_get_review_post_field( $review_post->ID, 'rating' )
+								: null;
 
-							if ( null === $item_rating && ! $item_text && ! $item_name && ! $item_city ) {
+							$has_item_rating = null !== $item_rating && '' !== $item_rating;
+
+							if ( ! $has_item_rating && ! $item_text && ! $item_name && ! $item_city ) {
 								continue;
 							}
 							?>
 							<div class="swiper-slide">
 								<article class="reviews-section__card">
-									<?php if ( null !== $item_rating && '' !== $item_rating ) : ?>
+									<?php if ( $has_item_rating ) : ?>
 										<div class="reviews-section__card-stars" aria-hidden="true">
 											<?php rhino_render_rating_stars( $item_rating, 5, false ); ?>
 										</div>

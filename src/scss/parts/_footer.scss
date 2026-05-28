@@ -1,6 +1,7 @@
 $footer-max-width: 1200px;
 $footer-border: rgba(0, 0, 0, 0.58);
 $footer-muted: #8e8e8e;
+$footer-accent: #e62b34;
 $footer-breakpoint: 1024px;
 
 .site-footer {
@@ -137,7 +138,7 @@ $footer-breakpoint: 1024px;
 	border: 1px solid #000000;
 	box-sizing: border-box;
 	text-decoration: none;
-	transition: background-color 0.2s ease, border-color 0.2s ease;
+	transition: border-color 0.2s ease;
 }
 
 .site-footer__social-icon {
@@ -151,12 +152,11 @@ $footer-breakpoint: 1024px;
 }
 
 .site-footer__social-link:hover {
-	background-color: #000000;
-	border-color: #000000;
+	border-color: $footer-accent;
 }
 
 .site-footer__social-link:hover .site-footer__social-icon {
-	background-color: #ffffff;
+	background-color: $footer-accent;
 }
 
 .site-footer__divider {
