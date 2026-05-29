@@ -53,8 +53,15 @@ function rhino_enqueue_styles_and_scripts() {
 		null,
 		'all'
 	);
-    wp_enqueue_style( 'rhino-main-min-css', get_template_directory_uri() . '/dist/main.min.css', array( 'swiper-css', 'rhino-sometype-mono' ), null, 'all' );
-    wp_enqueue_style( 'rhino-main-css', get_template_directory_uri() . '/dist/main.css', array( 'swiper-css', 'rhino-sometype-mono' ), null, 'all' );
+	wp_enqueue_style(
+		'rhino-montserrat',
+		'https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap',
+		array(),
+		null,
+		'all'
+	);
+    wp_enqueue_style( 'rhino-main-min-css', get_template_directory_uri() . '/dist/main.min.css', array( 'swiper-css', 'rhino-sometype-mono', 'rhino-montserrat' ), null, 'all' );
+    wp_enqueue_style( 'rhino-main-css', get_template_directory_uri() . '/dist/main.css', array( 'swiper-css', 'rhino-sometype-mono', 'rhino-montserrat' ), null, 'all' );
 
 	wp_enqueue_script( 'swiper-js', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array( 'jquery' ), null, true );
 
