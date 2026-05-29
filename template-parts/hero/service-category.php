@@ -32,10 +32,23 @@ if ( ! $title && ! $description && ! $image_url && empty( $button['url'] ) ) {
 	return;
 }
 
-$inline_style = $image_url ? ' style="background-image:url(' . esc_url( $image_url ) . ');"' : '';
+if ( $image_url && function_exists( 'rhino_preload_hero_background' ) ) {
+	rhino_preload_hero_background( $image_url );
+}
+
 ?>
 
-<section class="hero-section rhino-hero rhino-service-category-hero"<?php echo $inline_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<section class="hero-section rhino-hero rhino-service-category-hero hero-section--play-on-load">
+	<?php if ( $image_url ) : ?>
+		<img
+			class="hero-section__bg-image"
+			src="<?php echo esc_url( $image_url ); ?>"
+			alt=""
+			decoding="async"
+			fetchpriority="high"
+		/>
+	<?php endif; ?>
+
 	<span class="hero-section__overlay" aria-hidden="true"></span>
 
 	<?php if ( $text_bg ) : ?>

@@ -29,7 +29,8 @@ if ( ! $top_text && ! $title && ! $text && empty( $items ) && ! $form ) {
 	return;
 }
 
-$section_id = $block['id'] ? ' id="' . esc_attr( $block['id'] ) . '"' : '';
+$anchor_id  = ! empty( $block['id'] ) ? $block['id'] : 'contact';
+$section_id = ' id="' . esc_attr( $anchor_id ) . '"';
 $classes    = 'contact-section' . ( $block['class'] ? ' ' . esc_attr( trim( $block['class'] ) ) : '' );
 
 $theme_uri = get_template_directory_uri();

@@ -83,7 +83,15 @@ $classes    = 'our-services-section' . ( $block['class'] ? ' ' . esc_attr( trim(
 					}
 					?>
 					<li class="our-services-section__item our-services-section__reveal">
-						<article class="our-services-section__card">
+						<?php if ( $term_url ) : ?>
+							<a
+								class="our-services-section__card our-services-section__card--link"
+								href="<?php echo esc_url( $term_url ); ?>"
+								aria-label="<?php echo esc_attr( sprintf( __( 'View %s', 'rhino' ), $term->name ) ); ?>"
+							>
+						<?php else : ?>
+							<article class="our-services-section__card">
+						<?php endif; ?>
 							<?php if ( $image_url ) : ?>
 								<div class="our-services-section__card-media" aria-hidden="true">
 									<img
@@ -96,15 +104,9 @@ $classes    = 'our-services-section' . ( $block['class'] ? ' ' . esc_attr( trim(
 								</div>
 							<?php endif; ?>
 
-							<?php if ( $term_url ) : ?>
-								<a
-									class="our-services-section__card-action"
-									href="<?php echo esc_url( $term_url ); ?>"
-									aria-label="<?php echo esc_attr( sprintf( __( 'View %s', 'rhino' ), $term->name ) ); ?>"
-								>
-									<span class="our-services-section__card-action-icon" aria-hidden="true"></span>
-								</a>
-							<?php endif; ?>
+							<span class="our-services-section__card-action" aria-hidden="true">
+								<span class="our-services-section__card-action-icon"></span>
+							</span>
 
 							<div class="our-services-section__card-content">
 								<?php if ( $subtitles ) : ?>
@@ -112,22 +114,18 @@ $classes    = 'our-services-section' . ( $block['class'] ? ' ' . esc_attr( trim(
 								<?php endif; ?>
 
 								<?php if ( $term->name ) : ?>
-									<h3 class="our-services-section__card-title">
-										<?php if ( $term_url ) : ?>
-											<a class="our-services-section__card-title-link" href="<?php echo esc_url( $term_url ); ?>">
-												<?php echo esc_html( $term->name ); ?>
-											</a>
-										<?php else : ?>
-											<?php echo esc_html( $term->name ); ?>
-										<?php endif; ?>
-									</h3>
+									<h3 class="our-services-section__card-title"><?php echo esc_html( $term->name ); ?></h3>
 								<?php endif; ?>
 
 								<?php if ( $description ) : ?>
 									<div class="our-services-section__card-text"><?php echo wp_kses_post( $description ); ?></div>
 								<?php endif; ?>
 							</div>
-						</article>
+						<?php if ( $term_url ) : ?>
+							</a>
+						<?php else : ?>
+							</article>
+						<?php endif; ?>
 					</li>
 				<?php endforeach; ?>
 			</ul>

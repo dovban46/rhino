@@ -75,12 +75,24 @@ $hero-bg-text-color: #ffffff12;
 	text-transform: uppercase;
 }
 
+.hero-section__bg-image {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+	pointer-events: none;
+}
+
 .hero-section__title-wrap {
 	position: relative;
 	z-index: 1;
 	overflow: hidden;
 	margin: 0 0 24px;
-	padding: 0.14em 0 1em;
+	padding: 0;
 }
 
 .hero-section__title {
@@ -155,51 +167,115 @@ $hero-bg-text-color: #ffffff12;
 	border-color: $hero-accent;
 }
 
-// Reveal animations
-.hero-section__reveal {
+// Reveal animations (transform/opacity only — no layout-affecting padding changes)
+$hero-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+$hero-title-reveal-ease: cubic-bezier(0.33, 0, 0.2, 1);
+
+@keyframes hero-reveal-fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(24px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes hero-reveal-title-up {
+	from {
+		opacity: 0;
+		transform: translateY(100%);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+// Hero in first screen: CSS animation on load (no wait for JS)
+.hero-section--play-on-load .hero-section__reveal {
+	animation: hero-reveal-fade-up 0.7s $hero-reveal-ease 0.15s both;
+}
+
+.hero-section--play-on-load .hero-section__top.hero-section__reveal {
+	animation-delay: 0.1s;
+}
+
+.hero-section--play-on-load .hero-section__bottom-text.hero-section__reveal {
+	animation-delay: 0.3s;
+}
+
+.hero-section--play-on-load .hero-section__button.hero-section__reveal {
+	animation-delay: 0.45s;
+}
+
+.hero-section--play-on-load .hero-section__reveal--title .hero-section__title {
+	animation: hero-reveal-title-up 2.4s $hero-title-reveal-ease 0.5s both;
+}
+
+// Hero below the fold: same motion when scrolled into view
+.hero-section--await-reveal:not(.is-visible) .hero-section__reveal {
 	opacity: 0;
 	transform: translateY(24px);
 	transition:
-		opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-		transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+		opacity 0.7s $hero-reveal-ease,
+		transform 0.7s $hero-reveal-ease;
 	transition-delay: 0.15s;
 }
 
-.hero-section__top.hero-section__reveal {
+.hero-section--await-reveal:not(.is-visible) .hero-section__top.hero-section__reveal {
 	transition-delay: 0.1s;
 }
 
-.hero-section__bottom-text.hero-section__reveal {
+.hero-section--await-reveal:not(.is-visible) .hero-section__bottom-text.hero-section__reveal {
 	transition-delay: 0.3s;
 }
 
-.hero-section__button.hero-section__reveal {
+.hero-section--await-reveal:not(.is-visible) .hero-section__button.hero-section__reveal {
 	transition-delay: 0.45s;
 }
 
-.hero-section__reveal--title .hero-section__title {
+.hero-section--await-reveal:not(.is-visible) .hero-section__reveal--title .hero-section__title {
 	opacity: 0;
 	transform: translateY(100%);
 	transition:
-		opacity 2.4s cubic-bezier(0.33, 0, 0.2, 1),
-		transform 2.4s cubic-bezier(0.33, 0, 0.2, 1);
+		opacity 2.4s $hero-title-reveal-ease,
+		transform 2.4s $hero-title-reveal-ease;
 	transition-delay: 0.5s;
 }
 
-.hero-section.is-visible .hero-section__reveal {
+.hero-section--await-reveal.is-visible .hero-section__reveal {
 	opacity: 1;
 	transform: translateY(0);
 }
 
-.hero-section.is-visible .hero-section__reveal--title .hero-section__title {
+.hero-section--await-reveal.is-visible .hero-section__reveal--title .hero-section__title {
 	opacity: 1;
 	transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-section--play-on-load .hero-section__reveal,
+	.hero-section--play-on-load .hero-section__reveal--title .hero-section__title,
+	.hero-section--await-reveal .hero-section__reveal,
+	.hero-section--await-reveal .hero-section__reveal--title .hero-section__title {
+		animation: none;
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
 }
 
 @media (max-width: $hero-breakpoint) {
 	.hero-section {
 		padding: 245px 20px 170px;
-		background-position: calc(50% - 100px) center;
+	}
+
+	.hero-section__bg-image {
+		object-position: calc(50% - 100px) center;
 	}
 
 	.hero-section__bg-text {
@@ -225,7 +301,6 @@ $hero-bg-text-color: #ffffff12;
 	.hero-section__title-wrap {
 		width: calc(100% + 15px);
 		margin-right: -15px;
-		padding: 0 0 0.5em;
 	}
 
 	.hero-section__title {
@@ -279,7 +354,10 @@ $hero-bg-text-color: #ffffff12;
 	@media (max-width: $hero-breakpoint) {
 		.hero-section {
 			padding: 280px 20px 285px;
-			background-position: center;
+		}
+
+		.hero-section__bg-image {
+			object-position: center;
 		}
 
 		.hero-section__title {
@@ -295,37 +373,46 @@ $hero-bg-text-color: #ffffff12;
 	}
 
 	.hero-section__content {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: flex-end;
-		justify-content: space-between;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-areas:
+			'top top'
+			'title button'
+			'text .';
+		align-items: end;
 		column-gap: 24px;
 		row-gap: 24px;
 	}
 
 	.hero-section__top {
+		grid-area: top;
 		width: 100%;
-		margin-bottom: 24px;
+		margin-bottom: 0;
 	}
 
 	.hero-section__title-wrap {
-		flex: 1 1 auto;
+		grid-area: title;
 		min-width: 0;
+		max-width: 665px;
 		margin-bottom: 0;
 		padding: 0;
 	}
 
-	.hero-section__title{
+	.hero-section__title {
 		font-weight: 500;
 	}
 
 	.hero-section__bottom-text {
-		flex: 1 0 100%;
+		grid-area: text;
 		width: 100%;
+		max-width: 665px;
+		margin-top: 0;
 	}
 
 	.hero-section__button {
-		flex: 0 0 auto;
+		grid-area: button;
+		align-self: end;
+		justify-self: end;
 		margin-top: 0;
 	}
 
@@ -341,12 +428,19 @@ $hero-bg-text-color: #ffffff12;
 		}
 
 		.hero-section__content {
+			display: flex;
 			flex-direction: column;
 			align-items: stretch;
 			gap: 0;
 		}
-		
-		.hero-section__title{
+
+		.hero-section__title-wrap,
+		.hero-section__bottom-text,
+		.hero-section__button {
+			max-width: none;
+		}
+
+		.hero-section__title {
 			font-size: 52px;
 		}
 
@@ -373,20 +467,24 @@ $hero-bg-text-color: #ffffff12;
 	}
 
 	.hero-section__content {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: flex-end;
-		justify-content: space-between;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-areas:
+			'back back'
+			'title .'
+			'text .';
+		align-items: start;
 		column-gap: 24px;
-		row-gap: 0;
+		row-gap: 24px;
 	}
 
 	.hero-section__back {
+		grid-area: back;
 		display: inline-flex;
 		align-items: center;
 		gap: 10px;
 		width: 100%;
-		margin-bottom: 24px;
+		margin-bottom: 0;
 		color: #ffffffb8;
 		font-size: 16px;
 		font-weight: var(--font-weight-regular);
@@ -408,7 +506,7 @@ $hero-bg-text-color: #ffffff12;
 	}
 
 	.hero-section__title-wrap {
-		flex: 1 1 auto;
+		grid-area: title;
 		min-width: 0;
 		max-width: 665px;
 		margin-bottom: 0;
@@ -417,20 +515,24 @@ $hero-bg-text-color: #ffffff12;
 	}
 
 	.hero-section__title {
+		display: block;
 		max-width: 665px;
 		font-weight: var(--font-weight-medium);
 		line-height: 115px;
 	}
 
 	.hero-section__bottom-text {
-		flex: 1 0 100%;
+		grid-area: text;
 		width: 100%;
 		max-width: 665px;
-		margin-top: 24px;
+		margin-top: 0;
 	}
 
 	.hero-section__button {
-		flex: 0 0 auto;
+		grid-column: 2;
+		grid-row: 2 / 4;
+		align-self: end;
+		justify-self: end;
 		margin-top: 0;
 	}
 
@@ -448,19 +550,27 @@ $hero-bg-text-color: #ffffff12;
 	@media (max-width: $hero-breakpoint) {
 		.hero-section {
 			padding: 270px 20px 190px;
-			background-position: center center;
-			background-size: cover;
+		}
+
+		.hero-section__bg-image {
+			object-position: center center;
 		}
 
 		.hero-section__content {
+			display: flex;
 			flex-direction: column;
 			align-items: stretch;
 			gap: 0;
 		}
 
+		.hero-section__title-wrap,
+		.hero-section__bottom-text,
+		.hero-section__button {
+			max-width: none;
+		}
+
 		.hero-section__title-wrap {
-			max-width: 500px;
-			padding: 0 0 0.5em;
+			padding-bottom: 0.2em;
 		}
 
 		.hero-section__title {
@@ -479,6 +589,8 @@ $hero-bg-text-color: #ffffff12;
 		}
 
 		.hero-section__button {
+			grid-column: auto;
+			grid-row: auto;
 			width: 100%;
 			margin-top: 88px;
 		}
@@ -487,9 +599,8 @@ $hero-bg-text-color: #ffffff12;
 
 // About page
 .rhino-page-about {
-	.hero-section {
-		background-size: cover;
-		background-position: center;
+	.hero-section__bg-image {
+		object-position: center;
 	}
 
 	.hero-section__bg-text {

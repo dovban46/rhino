@@ -31,6 +31,19 @@ function rhino_theme_setup() {
 add_action( 'after_setup_theme', 'rhino_theme_setup' );
 
 //connect styles and scripts
+/**
+ * Preload primary theme font to reduce hero text layout shift.
+ */
+function rhino_preload_theme_fonts() {
+	$font_url = get_template_directory_uri() . '/assets/fonts/RobotoFlex-VariableFont.ttf';
+
+	printf(
+		'<link rel="preload" href="%s" as="font" type="font/ttf" crossorigin />' . "\n",
+		esc_url( $font_url )
+	);
+}
+add_action( 'wp_head', 'rhino_preload_theme_fonts', 1 );
+
 function rhino_enqueue_styles_and_scripts() {
 	wp_enqueue_style( 'swiper-css', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.0', 'all' );
 	wp_enqueue_style(

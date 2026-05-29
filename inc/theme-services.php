@@ -67,7 +67,75 @@ function rhino_is_service_category_archive() {
 }
 
 /**
- * Get service category terms for Our Services block.
+ * Latest published service post timestamp (GMT) per category term.
+ *
+ * @return array<int, int> term_id => unix timestamp
+ */
+function rhino_get_service_category_latest_post_timestamps() {
+	static $cache = null;
+
+	if ( null !== $cache ) {
+		return $cache;
+	}
+
+	$cache    = array();
+	$taxonomy = rhino_service_category_taxonomy();
+
+	if ( ! taxonomy_exists( $taxonomy ) ) {
+		return $cache;
+	}
+
+	$post_type = function_exists( 'rhino_get_services_post_type' )
+		? rhino_get_services_post_type()
+		: 'services';
+
+	if ( ! post_type_exists( $post_type ) ) {
+		return $cache;
+	}
+
+	global $wpdb;
+
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT tt.term_id, MAX(p.post_date_gmt) AS latest_gmt
+			FROM {$wpdb->posts} p
+			INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+			INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+			WHERE p.post_type = %s
+				AND p.post_status = 'publish'
+				AND tt.taxonomy = %s
+			GROUP BY tt.term_id",
+			$post_type,
+			$taxonomy
+		)
+	);
+
+	if ( empty( $rows ) ) {
+		return $cache;
+	}
+
+	foreach ( $rows as $row ) {
+		$term_id = (int) ( $row->term_id ?? 0 );
+
+		if ( ! $term_id ) {
+			continue;
+		}
+
+		$latest_gmt = isset( $row->latest_gmt ) ? (string) $row->latest_gmt : '';
+
+		if ( '' === $latest_gmt || '0000-00-00 00:00:00' === $latest_gmt ) {
+			continue;
+		}
+
+		$cache[ $term_id ] = (int) strtotime( $latest_gmt . ' GMT' );
+	}
+
+	return $cache;
+}
+
+/**
+ * Get service category terms for Our Services block (4 with the newest posts).
  *
  * @return WP_Term[]
  */
@@ -89,10 +157,28 @@ function rhino_get_service_category_terms() {
 		return array();
 	}
 
+	$latest_by_term = rhino_get_service_category_latest_post_timestamps();
+
+	$terms = array_values(
+		array_filter(
+			$terms,
+			static function ( $term ) use ( $latest_by_term ) {
+				return $term instanceof WP_Term && ! empty( $latest_by_term[ $term->term_id ] );
+			}
+		)
+	);
+
 	usort(
 		$terms,
-		function ( $a, $b ) {
-			return (int) $b->count <=> (int) $a->count;
+		static function ( $a, $b ) use ( $latest_by_term ) {
+			$latest_a = (int) ( $latest_by_term[ $a->term_id ] ?? 0 );
+			$latest_b = (int) ( $latest_by_term[ $b->term_id ] ?? 0 );
+
+			if ( $latest_a !== $latest_b ) {
+				return $latest_b <=> $latest_a;
+			}
+
+			return strcasecmp( $a->name, $b->name );
 		}
 	);
 
@@ -331,6 +417,38 @@ function rhino_get_homepage_hero_bg_text() {
 	$hero = rhino_get_homepage_hero_section();
 
 	return $hero ? trim( (string) ( $hero['hero_text_bg'] ?? '' ) ) : '';
+}
+
+/**
+ * Preload hero background image to reduce layout shift on first paint.
+ *
+ * @param string $url Image URL.
+ */
+function rhino_preload_hero_background( $url ) {
+	$url = trim( (string) $url );
+
+	if ( '' === $url ) {
+		return;
+	}
+
+	static $preloaded = array();
+
+	if ( isset( $preloaded[ $url ] ) ) {
+		return;
+	}
+
+	$preloaded[ $url ] = true;
+
+	add_action(
+		'wp_head',
+		static function () use ( $url ) {
+			printf(
+				'<link rel="preload" as="image" href="%s" />' . "\n",
+				esc_url( $url )
+			);
+		},
+		1
+	);
 }
 
 /**

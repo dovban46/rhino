@@ -20,18 +20,30 @@ $button      = function_exists( 'rhino_acf_link' ) ? rhino_acf_link( $hero['hero
 
 $bg_url = function_exists( 'rhino_acf_image_url' ) ? rhino_acf_image_url( $bg_image ) : '';
 
+if ( $bg_url && function_exists( 'rhino_preload_hero_background' ) ) {
+	rhino_preload_hero_background( $bg_url );
+}
+
 if ( ! $bg_url && ! $title && ! $top_text && ! $bottom_text && ! $button ) {
 	return;
 }
 
 $block      = get_acf_block_options();
 $section_id = $block['id'] ? ' id="' . esc_attr( $block['id'] ) . '"' : '';
-$classes    = 'hero-section rhino-hero' . ( $block['class'] ? ' ' . esc_attr( trim( $block['class'] ) ) : '' );
-
-$inline_style = $bg_url ? ' style="background-image:url(' . esc_url( $bg_url ) . ');"' : '';
+$classes = 'hero-section rhino-hero hero-section--play-on-load' . ( $block['class'] ? ' ' . esc_attr( trim( $block['class'] ) ) : '' );
 ?>
 
-<section class="<?php echo esc_attr( $classes ); ?>"<?php echo $section_id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo $inline_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<section class="<?php echo esc_attr( $classes ); ?>"<?php echo $section_id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+	<?php if ( $bg_url ) : ?>
+		<img
+			class="hero-section__bg-image"
+			src="<?php echo esc_url( $bg_url ); ?>"
+			alt=""
+			decoding="async"
+			fetchpriority="high"
+		/>
+	<?php endif; ?>
+
 	<span class="hero-section__overlay" aria-hidden="true"></span>
 
 	<?php if ( $text_bg ) : ?>
