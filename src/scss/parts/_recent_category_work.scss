@@ -3,7 +3,8 @@ $recent-work-accent: #e62b34;
 $recent-work-slide-width: 364px;
 $recent-work-slide-height: 484px;
 $recent-work-image-height: 352px;
-$recent-work-slide-gap: 51px;
+$recent-work-grid-row-gap: 30px;
+$recent-work-grid-column-gap: 55px;
 
 .recent-category-work-section {
 	padding: 0 20px 110px;
@@ -159,7 +160,7 @@ $recent-work-slide-gap: 51px;
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	grid-template-rows: repeat(2, 1fr);
-	gap: $recent-work-slide-gap;
+	gap: $recent-work-grid-row-gap $recent-work-grid-column-gap;
 	align-items: stretch;
 }
 
