@@ -78,6 +78,7 @@ require get_template_directory() . '/inc/theme-shared-review.php';
 require get_template_directory() . '/inc/theme-contact.php';
 require get_template_directory() . '/inc/theme-services.php';
 require get_template_directory() . '/inc/theme-recent-work.php';
+require get_template_directory() . '/inc/theme-legal.php';
 if ( ! function_exists( 'mytheme_register_nav_menu' ) ) {
 
 	function mytheme_register_nav_menu() {
