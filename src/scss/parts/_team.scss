@@ -1,5 +1,6 @@
-$team-breakpoint: 1024px;
-$team-accent: #e62b34;
+$team-breakpoint:       1024px;
+$team-narrow-breakpoint: 500px;
+$team-accent:           #e62b34;
 
 .team-section {
 	padding: 0 20px 110px;
@@ -253,5 +254,23 @@ $team-accent: #e62b34;
 
 	.team-section__nav-row {
 		margin-top: 36px;
+	}
+}
+
+@media (max-width: $team-narrow-breakpoint) {
+	.team-section__slider {
+		--team-left-inset: 0px;
+		width:             100%;
+		margin-left:       0;
+	}
+
+	.team-section__slide {
+		width:     100%;
+		min-width: 100%;
+	}
+
+	.team-section__card {
+		width:     100%;
+		min-width: 0;
 	}
 }

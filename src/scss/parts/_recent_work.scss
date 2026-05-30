@@ -120,7 +120,7 @@ $recent-work-slide-gap: 51px;
 .recent-work-section__slider {
 	width: 100%;
 	overflow: hidden;
-	touch-action: pan-y;
+	touch-action: pan-x pan-y;
 }
 
 .recent-work-section__slider .swiper-wrapper {
@@ -129,31 +129,25 @@ $recent-work-slide-gap: 51px;
 
 .recent-work-section__slider .swiper-slide {
 	flex-shrink: 0;
-	width: $recent-work-slide-width;
-	height: auto;
+	display:       flex;
+	width:         $recent-work-slide-width;
+	height:        auto;
+	box-sizing:    border-box;
 }
 
 .recent-work-section__card {
-	display: flex;
+	display:        flex;
+	flex:           1 1 auto;
 	flex-direction: column;
-	flex-shrink: 0;
-	box-sizing: border-box;
-	width: $recent-work-slide-width;
-	min-height: $recent-work-slide-height;
-	border: 1px solid #00000094;
+	box-sizing:     border-box;
+	width:          100%;
+	min-height:     $recent-work-slide-height;
+	height:         100%;
+	border:         1px solid #00000094;
 }
 
 .recent-work-section__card--clickable {
-	cursor: pointer;
-}
-
-.recent-work-section__card--clickable:focus-visible {
-	outline: 2px solid $recent-work-accent;
-	outline-offset: 4px;
-}
-
-.recent-work-section__compare {
-	--compare-position: 50%;
+	cursor: default;
 }
 
 .recent-work-section__compare-media {
@@ -162,6 +156,17 @@ $recent-work-slide-gap: 51px;
 	max-height: $recent-work-image-height;
 	height: $recent-work-image-height;
 	overflow: hidden;
+	cursor: pointer;
+	touch-action: none;
+}
+
+.recent-work-section__compare-media:focus-visible {
+	outline: 2px solid $recent-work-accent;
+	outline-offset: 4px;
+}
+
+.recent-work-section__compare {
+	--compare-position: 50%;
 	touch-action: none;
 }
 
@@ -248,6 +253,7 @@ $recent-work-slide-gap: 51px;
 	position: absolute;
 	top: 185px;
 	left: 50%;
+	z-index: 5;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -261,6 +267,7 @@ $recent-work-slide-gap: 51px;
 	transform: translateX(-50%);
 	cursor: ew-resize;
 	pointer-events: auto;
+	touch-action: none;
 	transition: opacity 0.25s ease;
 }
 
@@ -286,7 +293,21 @@ $recent-work-slide-gap: 51px;
 }
 
 .recent-work-section__card-body {
-	padding: 23px;
+	display:        flex;
+	flex:           1 1 auto;
+	flex-direction: column;
+	padding:        23px;
+	touch-action:   pan-x pan-y;
+}
+
+.recent-work-section__card-text {
+	margin: 0;
+	flex:   1 1 auto;
+	color:  #000000;
+	font-size: 16px;
+	font-weight: var(--font-weight-light);
+	line-height: 21px;
+	overflow-wrap: anywhere;
 }
 
 .recent-work-section__card-num {
@@ -296,15 +317,6 @@ $recent-work-slide-gap: 51px;
 	font-size: 16px;
 	font-weight: var(--font-weight-light);
 	line-height: 11px;
-}
-
-.recent-work-section__card-text {
-	margin: 0;
-	color: #000000;
-	font-size: 16px;
-	font-weight: var(--font-weight-light);
-	line-height: 21px;
-	overflow-wrap: anywhere;
 }
 
 .recent-work-section__progress {
@@ -397,18 +409,20 @@ $recent-work-slide-gap: 51px;
 
 	.recent-work-section__slider {
 		width: 100%;
-		overflow: visible;
+		overflow: hidden;
 	}
 
 	.recent-work-section__slider .swiper-slide {
-		width: 100% !important;
+		width:  100% !important;
 		max-width: 100%;
+		height: auto !important;
 	}
 
 	.recent-work-section__card {
-		width: 100%;
-		max-width: 100%;
+		width:      100%;
+		max-width:  100%;
 		min-height: 0;
+		height:     100%;
 	}
 
 	.recent-work-section__compare {

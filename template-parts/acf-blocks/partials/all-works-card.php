@@ -52,7 +52,12 @@ $category_label = $term instanceof WP_Term
 	data-after-image="<?php echo esc_url( $image_after ); ?>"
 	data-slide-index="<?php echo esc_attr( (string) ( $index - 1 ) ); ?>"
 >
-	<div class="all-works-section__media">
+	<div
+		class="all-works-section__media"
+		role="button"
+		tabindex="0"
+		aria-label="<?php echo esc_attr( $category_label ? sprintf( /* translators: %s: project category */ __( 'Open %s project gallery', 'rhino' ), $category_label ) : __( 'Open project gallery', 'rhino' ) ); ?>"
+	>
 		<img
 			class="all-works-section__image"
 			src="<?php echo esc_url( $image_after ); ?>"

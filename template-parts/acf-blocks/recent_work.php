@@ -91,8 +91,13 @@ $slide_count = count( $recent_work_posts );
 								data-after-image="<?php echo esc_url( $image_after ); ?>"
 								data-slide-index="<?php echo esc_attr( (string) ( $index - 1 ) ); ?>"
 							>
-								<div class="recent-work-section__compare" data-recent-work-compare style="--compare-position: 50%;">
-									<div class="recent-work-section__compare-media">
+								<div class="recent-work-section__compare swiper-no-swiping" data-recent-work-compare style="--compare-position: 50%;">
+									<div
+										class="recent-work-section__compare-media"
+										role="button"
+										tabindex="0"
+										aria-label="<?php esc_attr_e( 'Open project gallery', 'rhino' ); ?>"
+									>
 										<div class="recent-work-section__compare-labels">
 											<span class="recent-work-section__compare-label recent-work-section__compare-label--before"><?php esc_html_e( 'BEFORE', 'rhino' ); ?></span>
 											<span class="recent-work-section__compare-label recent-work-section__compare-label--after"><?php esc_html_e( 'AFTER', 'rhino' ); ?></span>

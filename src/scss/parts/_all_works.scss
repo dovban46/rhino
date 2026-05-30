@@ -208,7 +208,7 @@ $all-works-grid-column-gap: 55px;
 .all-works-section__slider {
 	width: 100%;
 	overflow: hidden;
-	touch-action: pan-y;
+	touch-action: pan-x pan-y;
 }
 
 .all-works-section__slider--desktop {
@@ -257,21 +257,18 @@ $all-works-grid-column-gap: 55px;
 	border: 1px solid $all-works-border;
 }
 
-.all-works-section__card--clickable {
-	cursor: pointer;
-}
-
-.all-works-section__card--clickable:focus-visible {
-	outline: 2px solid $all-works-accent;
-	outline-offset: 4px;
-}
-
 .all-works-section__media {
 	position: relative;
 	width: 100%;
 	height: $all-works-image-height;
 	max-height: $all-works-image-height;
 	overflow: hidden;
+	cursor: pointer;
+}
+
+.all-works-section__media:focus-visible {
+	outline: 2px solid $all-works-accent;
+	outline-offset: 4px;
 }
 
 .all-works-section__image {
@@ -476,7 +473,7 @@ $all-works-grid-column-gap: 55px;
 	}
 
 	.all-works-section__slider-area {
-		overflow: visible;
+		overflow: hidden;
 	}
 
 	.all-works-section__slider--desktop {
@@ -487,10 +484,10 @@ $all-works-grid-column-gap: 55px;
 		display: block;
 		width: 100%;
 		max-width: 100%;
-		overflow: visible;
+		overflow: hidden;
 
 		&.swiper {
-			overflow: visible;
+			overflow: hidden;
 		}
 
 		.swiper-wrapper {
