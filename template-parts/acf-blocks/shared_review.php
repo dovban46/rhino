@@ -22,7 +22,8 @@ if ( ! $title ) {
 }
 
 $block      = get_acf_block_options();
-$section_id = $block['id'] ? ' id="' . esc_attr( $block['id'] ) . '"' : '';
+$anchor_id  = ! empty( $block['id'] ) ? $block['id'] : 'shared-review';
+$section_id = ' id="' . esc_attr( $anchor_id ) . '"';
 $classes    = 'shared-review-section' . ( $block['class'] ? ' ' . esc_attr( trim( $block['class'] ) ) : '' );
 
 $theme_uri      = get_template_directory_uri();
