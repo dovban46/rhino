@@ -1,4 +1,6 @@
 $category-list-breakpoint: 1024px;
+$category-list-stack-base:       70px;
+$category-list-stack-layer-pad: 30px;
 $category-list-accent:     #e62b34;
 $category-list-border:     #00000094;
 $category-list-muted:      #00000094;
@@ -35,13 +37,26 @@ $category-list-text:       #333333;
 	}
 }
 
-// Sticky stack — works on all breakpoints. JS adds --stack-enabled and sets top/z-index.
+// Sticky stack — works on all breakpoints. JS adds --stack-enabled and sets top.
 .category-list-section--stack-enabled .category-list-section__item {
+	--cl-stack-pad-top: #{$category-list-stack-base};
+
 	position:      sticky;
-	padding-top:   70px;
+	isolation:     isolate;
+	padding:       var(--cl-stack-pad-top) 0 71px;
 	border-bottom: 0;
 	border-top:    1px solid $category-list-border;
-	// top and z-index set by JS on every scroll frame — no CSS transition needed
+	// top set by JS; z-index rises per item so the next card stacks above the previous
+}
+
+.category-list-section--stack-enabled .category-list-section__item:not(:first-child) {
+	--cl-stack-pad-top: var(--category-list-stack-layer-pad, #{$category-list-stack-layer-pad});
+}
+
+@for $i from 1 through 12 {
+	.category-list-section--stack-enabled .category-list-section__item:nth-child(#{$i}) {
+		z-index: $i;
+	}
 }
 
 .category-list-section--stack-enabled .category-list-section__item:first-child {

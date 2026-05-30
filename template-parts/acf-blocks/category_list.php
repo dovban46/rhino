@@ -24,6 +24,8 @@ $classes    = 'category-list-section' . ( $block['class'] ? ' ' . esc_attr( trim
 	class="<?php echo esc_attr( $classes ); ?>"
 	<?php echo $section_id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-category-list
+	data-stack-base="70"
+	data-stack-pad-layer="30"
 	data-stack-peek="160"
 	data-stack-peek-mobile="120"
 >

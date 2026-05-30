@@ -729,11 +729,6 @@
 		}
 
 		var stackMQ = window.matchMedia('(min-width: 1025px)');
-		var header  = document.querySelector('.site-header');
-
-		function getHeaderH() {
-			return header ? header.offsetHeight : 0;
-		}
 
 		function markVisible(item) {
 			if (!item.classList.contains('is-item-visible')) {
@@ -741,19 +736,8 @@
 			}
 		}
 
-		// в”Ђв”Ђ rolling-window sticky stacking в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
-		//
-		//  On each scroll frame the "active" index is recalculated.
-		//  Then every item's top is assigned based on delta = activeIdx - i:
-		//
-		//   delta  0  (active)   в†’  headerH + 2*peek
-		//   delta  1  (1-back)   в†’  headerH + 1*peek
-		//   delta  2  (2-back)   в†’  headerH
-		//   delta в‰Ґ 3 (old)      в†’  в€’itemHeight  (hidden above viewport)
-		//   delta < 0 (future)   в†’  headerH + 2*peek  (not sticky yet)
-		//
-		//  Natural tops are cached once (with sticky removed) so the active
-		//  index can be found cheaply on every frame.
+		// Rolling-window sticky stack: base card always at data-stack-base (70px)
+		// from the viewport top; each newer card sits peek px lower in z-order.
 
 		function setupSection(section) {
 			if (section._clCleanup) {
@@ -762,24 +746,34 @@
 			}
 
 			var items = Array.prototype.slice.call(section.querySelectorAll('[data-category-list-item]'));
-			var isMobile = !stackMQ.matches;
-				var maxPeeks  = isMobile ? 1 : 2;
-			var peek      = isMobile
-					? parseInt(section.getAttribute('data-stack-peek-mobile'), 10) || 80
-					: parseInt(section.getAttribute('data-stack-peek'), 10) || 150;
+			var isMobile   = !stackMQ.matches;
+			var maxPeeks   = isMobile ? 1 : 2;
+			var stackBase     = parseInt(section.getAttribute('data-stack-base'), 10) || 70;
+			var stackLayerPad = parseInt(section.getAttribute('data-stack-pad-layer'), 10) || 30;
+			var peek          = isMobile
+				? parseInt(section.getAttribute('data-stack-peek-mobile'), 10) || 120
+				: parseInt(section.getAttribute('data-stack-peek'), 10) || 160;
+			var stackBand  = stackBase + maxPeeks * peek;
 
 				if (items.length <= 1) {
 				section.classList.remove('category-list-section--stack-enabled');
 				section.classList.remove('category-list-section--no-transition');
 				items.forEach(function (item) {
-					item.style.top    = '';
-					item.style.zIndex = '';
+					item.style.position = '';
+					item.style.top      = '';
+					item.style.zIndex   = '';
+					item.style.opacity  = '';
 				});
 				return;
 			}
 
 			section.classList.add('category-list-section--stack-enabled');
 			section.classList.add('category-list-section--no-transition');
+			section.style.setProperty('--category-list-stack-layer-pad', stackLayerPad + 'px');
+
+			items.forEach(function (item, i) {
+				item.style.zIndex = String(i + 1);
+			});
 
 			// Temporarily remove sticky to read natural document positions
 			items.forEach(function (item) {
@@ -788,9 +782,8 @@
 			});
 			void section.offsetHeight;
 
-			var headerH = getHeaderH();
-			var N       = items.length;
-			var rafId   = null;
+			var N     = items.length;
+			var rafId = null;
 
 			var naturalTops = items.map(function (item) {
 					return item.getBoundingClientRect().top + window.pageYOffset;
@@ -803,36 +796,88 @@
 					item.style.position = '';
 				});
 
-			function departure(j, scrollY) {
-				if (j >= N) { return 0; }
-				var vp     = naturalTops[j] - scrollY;
-				var arrVp  = headerH + maxPeeks * peek;
-				var trigVp = arrVp + peek;
-				return Math.max(0, Math.min(1, (trigVp - vp) / peek));
+			function getActiveIndex(scrollY) {
+				var active = 0;
+
+				for (var i = 0; i < N; i++) {
+					if (scrollY >= naturalTops[i] - stackBand) {
+						active = i;
+					}
+				}
+
+				return active;
+			}
+
+			// 0 → 1 while the next card scrolls up over the one leaving the stack.
+			function getPushProgress(scrollY, windowFrom) {
+				var pushIdx = windowFrom + maxPeeks + 1;
+
+				if (pushIdx >= N) {
+					return 0;
+				}
+
+				var enterScroll = naturalTops[pushIdx] - stackBand - peek;
+
+				if (scrollY < enterScroll) {
+					return 0;
+				}
+
+				return Math.min(1, (scrollY - enterScroll) / peek);
 			}
 
 			function updateTops() {
-				var scrollY = window.pageYOffset;
+				var scrollY      = window.pageYOffset;
+				var activeIdx    = getActiveIndex(scrollY);
+				var windowFrom   = Math.max(0, activeIdx - maxPeeks);
+				var pushProgress = getPushProgress(scrollY, windowFrom);
+				var fromSlot;
+				var stickTopPx;
 
 				items.forEach(function (item, i) {
-					var stickyStart = naturalTops[i] - headerH - maxPeeks * peek;
-					var newTop;
+					var stickyStart = naturalTops[i] - stackBand;
 
 					if (scrollY < stickyStart) {
-						// Not yet in stacking zone: set top = natural viewport position so
-						// sticky fires at exactly the natural position — no visual displacement.
-						newTop = naturalTops[i] - scrollY;
-					} else {
-						var dep1 = departure(i + 1, scrollY);
-						var dep2 = maxPeeks > 1 ? departure(i + 2, scrollY) : 0;
-						newTop = Math.max(
-							headerH,
-							Math.min(headerH + maxPeeks * peek, headerH + (maxPeeks - dep1 - dep2) * peek)
-						);
+						item.style.position      = 'relative';
+						item.style.top           = '0px';
+						item.style.visibility    = '';
+						item.style.opacity       = '';
+						item.style.pointerEvents = '';
+						return;
 					}
 
-					item.style.top    = newTop + 'px';
-					item.style.zIndex = i + 1;
+					item.style.position = 'sticky';
+
+					if (i < windowFrom) {
+						stickTopPx = stackBase + i * peek;
+
+						if (item.style.top !== stickTopPx + 'px') {
+							item.style.top = stickTopPx + 'px';
+						}
+
+						item.style.visibility    = 'hidden';
+						item.style.opacity       = '0';
+						item.style.pointerEvents = 'none';
+						return;
+					}
+
+					fromSlot = i - windowFrom;
+
+					if (pushProgress > 0) {
+						if (fromSlot === 0) {
+							stickTopPx = stackBase;
+							item.style.opacity = String(Math.max(0, 1 - pushProgress));
+						} else {
+							stickTopPx = stackBase + (fromSlot - pushProgress) * peek;
+							item.style.opacity = '';
+						}
+					} else {
+						stickTopPx = stackBase + fromSlot * peek;
+						item.style.opacity = '';
+					}
+
+					item.style.top = stickTopPx + 'px';
+					item.style.visibility    = '';
+					item.style.pointerEvents = '';
 				});
 			}
 
@@ -860,6 +905,15 @@
 					cancelAnimationFrame(rafId);
 					rafId = null;
 				}
+				section.style.removeProperty('--category-list-stack-layer-pad');
+				items.forEach(function (item) {
+					item.style.position      = '';
+					item.style.top           = '';
+					item.style.zIndex        = '';
+					item.style.visibility    = '';
+					item.style.opacity       = '';
+					item.style.pointerEvents = '';
+				});
 			};
 		}
 
