@@ -145,6 +145,22 @@ function rhino_footer_contact() {
 }
 
 /**
+ * Render footer address.
+ */
+function rhino_footer_address() {
+	$address = rhino_footer_contact_text( 'footer_adress' );
+
+	if ( '' === $address ) {
+		return;
+	}
+
+	printf(
+		'<p class="site-footer__address">%s</p>',
+		esc_html( $address )
+	);
+}
+
+/**
  * Render footer social links repeater.
  */
 function rhino_footer_social() {

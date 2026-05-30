@@ -26,6 +26,7 @@ $footer_text_2 = rhino_footer_html( 'footer_text_2' );
 
 				<div class="site-footer__right">
 					<?php rhino_footer_contact(); ?>
+					<?php rhino_footer_address(); ?>
 					<?php rhino_footer_social(); ?>
 				</div>
 			</div>

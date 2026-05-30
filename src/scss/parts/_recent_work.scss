@@ -464,18 +464,26 @@ $recent-work-slide-gap: 51px;
 	}
 }
 
-// Lightbox
+// Lightbox (shared by recent_work and all_works galleries)
 $recent-work-lightbox-max-w: 1212px;
 $recent-work-lightbox-max-h: 578px;
 $recent-work-lightbox-nav-size: 67px;
 $recent-work-lightbox-nav-gap: 26px;
-$recent-work-lightbox-viewport-max-w: min(
+$recent-work-lightbox-desktop-max-w: min(
 	#{$recent-work-lightbox-max-w},
 	calc(100vw - 40px - #{$recent-work-lightbox-nav-size * 2} - #{$recent-work-lightbox-nav-gap * 2})
 );
 $recent-work-lightbox-viewport-max-h: min(
 	#{$recent-work-lightbox-max-h},
 	calc(100vh - 120px)
+);
+$recent-work-lightbox-mobile-max-h: min(
+	#{$recent-work-lightbox-max-h},
+	calc(100vh - 168px)
+);
+$recent-work-lightbox-mobile-height: min(
+	#{$recent-work-lightbox-mobile-max-h},
+	calc((100vw - 32px) * 0.72)
 );
 
 .recent-work-lightbox {
@@ -537,7 +545,7 @@ body.is-recent-work-lightbox-open {
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	width: $recent-work-lightbox-viewport-max-w;
+	width: $recent-work-lightbox-desktop-max-w;
 	height: $recent-work-lightbox-viewport-max-h;
 	max-width: $recent-work-lightbox-max-w;
 	max-height: $recent-work-lightbox-max-h;
@@ -558,7 +566,7 @@ body.is-recent-work-lightbox-open {
 .recent-work-lightbox__image {
 	display: block;
 	width: auto;
-	height: auto;
+	height: $recent-work-lightbox-max-h;
 	max-width: 100%;
 	max-height: 100%;
 	object-fit: contain;
@@ -630,6 +638,19 @@ body.is-recent-work-lightbox-open {
 		height: min(#{$recent-work-lightbox-max-h}, calc(100vh - 200px));
 		max-width: calc(100vw - 32px);
 		max-height: min(#{$recent-work-lightbox-max-h}, calc(100vh - 200px));
+	}
+
+	.recent-work-lightbox__figure {
+		width: 100%;
+		height: 100%;
+	}
+
+	.recent-work-lightbox__image {
+		width: 100%;
+		height: auto;
+		max-width: 100%;
+		max-height: $recent-work-lightbox-mobile-height;
+		object-fit: contain;
 	}
 
 	.recent-work-lightbox__nav--prev,
